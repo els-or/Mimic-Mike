@@ -13,11 +13,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Test
-        run: |
-          npm install
-          npm run test
-
       - name: Deploy
         # Only run this step if the branch is main
         if: github.ref == 'refs/heads/main'

@@ -1,61 +1,65 @@
-import { User, Book } from '../models/index.js';
-import { signToken, AuthenticationError } from '../services/auth.js'; 
+import { Thought, User } from '../models/index.js';
+import { signToken, AuthenticationError } from '../utils/auth.js'; 
 
+// Define types for the arguments
 interface AddUserArgs {
-    input: {
-        username: string;
-    email: string;
-    password: string;
-}
-}
-
-interface LoginUserArgs {
-    email: string;
-    password: string;
-}
-
-interface UserArgs {
+  input:{
     username: string;
-}
-
-interface BookArgs {
-  input: {
-    bookId: string;
-    title: string;
-    authors: string[];
-    description: string;
-    image: string;
-    link: string;
+    email: string;
+    password: string;
   }
 }
 
-interface removeBookArgs {
-    bookId: string;
+interface LoginUserArgs {
+  email: string;
+  password: string;
+}
+
+interface UserArgs {
+  username: string;
+}
+
+interface ThoughtArgs {
+  thoughtId: string;
+}
+
+interface AddThoughtArgs {
+  input:{
+    thoughtText: string;
+    thoughtAuthor: string;
+  }
+}
+
+interface AddCommentArgs {
+  thoughtId: string;
+  commentText: string;
+}
+
+interface RemoveCommentArgs {
+  thoughtId: string;
+  commentId: string;
 }
 
 const resolvers = {
   Query: {
     users: async () => {
-      console.log("Fetching all users");
-      return User.find().populate('savedBooks');
+      return User.find().populate('thoughts');
     },
     user: async (_parent: any, { username }: UserArgs) => {
-      console.log("Fetching user with username:", username);
-      return User.findOne({ username }).populate('savedBooks');
+      return User.findOne({ username }).populate('thoughts');
     },
-    books: async () => {
-      console.log("Fetching all books");
-      return await Book.find().sort({ createdAt: -1 });
+    thoughts: async () => {
+      return await Thought.find().sort({ createdAt: -1 });
     },
-    book: async (_parent: any, { input }: BookArgs) => {
-      return await Book.findOne({ _id: input.bookId });
+    thought: async (_parent: any, { thoughtId }: ThoughtArgs) => {
+      return await Thought.findOne({ _id: thoughtId });
     },
     // Query to get the authenticated user's information
     // The 'me' query relies on the context to check if the user is authenticated
     me: async (_parent: any, _args: any, context: any) => {
       // If the user is authenticated, find and return the user's information along with their thoughts
       if (context.user) {
-        return User.findOne({ _id: context.user._id }).populate('savedBooks');
+        return User.findOne({ _id: context.user._id }).populate('thoughts');
       }
       // If the user is not authenticated, throw an AuthenticationError
       throw new AuthenticationError('Could not authenticate user.');
@@ -96,40 +100,75 @@ const resolvers = {
       // Return the token and the user
       return { token, user };
     },
-    saveBook: async (_parent: any, bookData: BookArgs, context: any) => {
+    addThought: async (_parent: any, { input }: AddThoughtArgs, context: any) => {
       if (context.user) {
-        const book = await Book.create({ ...bookData.input });
-        const results = await User.findOneAndUpdate(
+        const thought = await Thought.create({ ...input });
+
+        await User.findOneAndUpdate(
           { _id: context.user._id },
-          { $addToSet: { savedBooks: book } },
-          { new: true, runValidators: true }
+          { $addToSet: { thoughts: thought._id } }
         );
-        console.log("user updated", results);
-        return book;
+
+        return thought;
       }
       throw AuthenticationError;
       ('You need to be logged in!');
     },
-    removeBook: async (_parent: any, bookData: removeBookArgs, context: any) => {
-      console.log("removing book", bookData.bookId);
+    addComment: async (_parent: any, { thoughtId, commentText }: AddCommentArgs, context: any) => {
       if (context.user) {
-        const book = await Book.findOneAndDelete({
-          bookId: bookData.bookId
+        return Thought.findOneAndUpdate(
+          { _id: thoughtId },
+          {
+            $addToSet: {
+              comments: { commentText, commentAuthor: context.user.username },
+            },
+          },
+          {
+            new: true,
+            runValidators: true,
+          }
+        );
+      }
+      throw AuthenticationError;
+    },
+    removeThought: async (_parent: any, { thoughtId }: ThoughtArgs, context: any) => {
+      if (context.user) {
+        const thought = await Thought.findOneAndDelete({
+          _id: thoughtId,
+          thoughtAuthor: context.user.username,
         });
-        console.log("book removed", book);
-        if(!book){
+
+        if(!thought){
           throw AuthenticationError;
         }
 
-        const user = await User.findOneAndUpdate(
+        await User.findOneAndUpdate(
           { _id: context.user._id },
-          { $pull: { savedBooks: book } }
+          { $pull: { thoughts: thought._id } }
         );
-        return user;
+
+        return thought;
       }
       throw AuthenticationError;
-    }
-  }
+    },
+    removeComment: async (_parent: any, { thoughtId, commentId }: RemoveCommentArgs, context: any) => {
+      if (context.user) {
+        return Thought.findOneAndUpdate(
+          { _id: thoughtId },
+          {
+            $pull: {
+              comments: {
+                _id: commentId,
+                commentAuthor: context.user.username,
+              },
+            },
+          },
+          { new: true }
+        );
+      }
+      throw AuthenticationError;
+    },
+  },
 };
 
 export default resolvers;

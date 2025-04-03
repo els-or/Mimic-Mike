@@ -33,8 +33,6 @@ export const UPDATE_USER = gql`
   }
 `;
 
-// Ensure that GameSessionInput is defined in your GraphQL schema and matches the expected input structure.
-
 
 export const CREATE_GAME_SESSION = gql`
   mutation createGameSession($score: Int!) {
@@ -48,35 +46,3 @@ export const CREATE_GAME_SESSION = gql`
   }
 `;
 
-
-//These are just for reference and will not be part of the final code
-export const ADD_THOUGHT = gql`
-  mutation AddThought($input: ThoughtInput!) {
-    addThought(input: $input) {
-      _id
-      thoughtText
-      thoughtAuthor
-      createdAt
-      comments {
-        _id
-        commentText
-      }
-    }
-  }
-`;
-
-export const ADD_COMMENT = gql`
-  mutation addComment($thoughtId: ID!, $commentText: String!) {
-    addComment(thoughtId: $thoughtId, commentText: $commentText) {
-      _id
-      thoughtText
-      thoughtAuthor
-      createdAt
-      comments {
-        _id
-        commentText
-        createdAt
-      }
-    }
-  }
-`;

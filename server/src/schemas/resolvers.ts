@@ -1,3 +1,4 @@
+import e from 'express';
 import { GameSession, User } from '../models/index.js';
 import { signToken, AuthenticationError } from '../utils/auth.js'; 
 
@@ -27,7 +28,12 @@ interface GameSessionArgs {
   score: number;
 }
 
-
+interface AddGameSessionArgs {
+  input: {
+    player: UserArgs;
+    score: number;
+  };
+}
 
 const resolvers = {
   Query: {
@@ -87,29 +93,55 @@ const resolvers = {
 
     updateUser: async (_parent: any, {...input }: GameSessionArgs, context: any) => {
       if(context.user) {
-          //get user by id
+
+          //get user by id. This is the user assosicated with the game session
           const user = await User.findById(input.player._id);
+
           //if user not found, throw error
           if (!user) {
             throw new Error('User not found');
           }
-          //compare the score from the game session to the highscore of the user
-          if (input.score > user.highScore) {
+          //check to see if the context user doesn't match the game session user
+          if(context.user._id !== user._id) {
+            throw new AuthenticationError('You are not authorized to update this user.');
+          }
+          //if there is a match, compare the scores
+          else {
+            //??? I'm not sure if this is the correct comparison.
+            //compare the score from the game session to the highscore of the user
+            if (input.score > user.highScore) {
 
-          //if score is greater than highscore, update highscore
-          await User.findOneAndUpdate(
-            { _id: input.player._id },
-            { highScore: input.score },
-            { new: true }
-          );
-        }
+              //if score is greater than highscore, update highscore
+              //??? This is updating the user in as it is in the UserArgs. Not sure if I should be updating this or the context user eventhough they are the same.
+              // await User.findOneAndUpdate(
+              //   { _id: input.player._id },
+              //   { highScore: input.score },
+              //   { new: true }
+              // );
+              await User.findByIdAndUpdate(
+                { _id: context.user._id },
+                { highScore: input.score },
+                { new: true }
+              );
+            }
+          }
+          
       }
-      else {
-        throw new AuthenticationError('Could not authenticate user.');
+      throw new AuthenticationError('Could not authenticate user.');  
+    },
+
+
+    addGameSession: async (_parent: any, { input }: AddGameSessionArgs, context: any) => {
+      if (context.user) {
+        // Create a new game session with the provided player and score
+        // Score is set to 0 by default. This is done in the model.
+        const gameSession = await GameSession.create({ ...input });
+        return gameSession;
       }
-    }
-    //TODO: add createGameSession mutation
-  }
+      throw new AuthenticationError('Could not authenticate user.');
+    },
+
+  },
 };
 
 export default resolvers;

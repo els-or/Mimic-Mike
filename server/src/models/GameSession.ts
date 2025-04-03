@@ -17,6 +17,7 @@ const GameSessionSchema = new Schema<IGameSession>(
     score: {
       type: Number,
       required: true,
+      default: 0,
     },
   },
   {

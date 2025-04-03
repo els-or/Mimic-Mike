@@ -1,4 +1,4 @@
-import e from 'express';
+//import e from 'express';
 import { GameSession, User } from '../models/index.js';
 import { signToken, AuthenticationError } from '../utils/auth.js'; 
 
@@ -28,19 +28,13 @@ interface GameSessionArgs {
   score: number;
 }
 
-interface AddGameSessionArgs {
-  input: {
-    player: UserArgs;
-    score: number;
-  };
-}
 
 const resolvers = {
   Query: {
     users: async () => {
       return User.find();
     },
-    GameSession: async (_parent: any, { _id }: GameSessionArgs) => {
+    gameSession: async (_parent: any, { _id }: GameSessionArgs) => {
       return GameSession.findById(_id).populate('player');
     },
     // Query to get the authenticated user's information
@@ -131,14 +125,27 @@ const resolvers = {
     },
 
 
-    addGameSession: async (_parent: any, { input }: AddGameSessionArgs, context: any) => {
-      if (context.user) {
-        // Create a new game session with the provided player and score
-        // Score is set to 0 by default. This is done in the model.
-        const gameSession = await GameSession.create({ ...input });
-        return gameSession;
+    createGameSession: async (_parent: any, { score }: { score: number }, context: any) => {
+      //Ensusure the user is authenticated
+      if(!context.user) {
+        throw new AuthenticationError('You need to be logged in to create a game session!');
       }
-      throw new AuthenticationError('Could not authenticate user.');
+
+      try{
+        console.log('Creating game session for user:', context.user._id);
+        console.log("user information:", context.user);
+        console.log('Score:', score);
+        //create a new game session with the logged in user as the player
+        const newGameSession = await GameSession.create({
+          player: context.user._id, //use the authenticated user's id
+          score, //??? Should this be score: score? Or is this correct?
+        });
+
+        return newGameSession; //return the new game session
+      }catch (error) {
+        console.error('Error creating game session:', error);
+        throw new Error('Failed to create game session');
+      }
     },
 
   },

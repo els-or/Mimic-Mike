@@ -24,6 +24,21 @@ export const ADD_USER = gql`
 }
 `;
 
+export const CREATE_GAME_SESSION = gql`
+  mutation createGameSession($score: Int!) {
+    createGameSession(score: $score) {
+      _id
+      player {
+        _id
+        username
+      }
+      score
+    }
+  }
+`;
+
+
+//These are just for reference and will not be part of the final code
 export const ADD_THOUGHT = gql`
   mutation AddThought($input: ThoughtInput!) {
     addThought(input: $input) {

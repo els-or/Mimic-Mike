@@ -10,6 +10,17 @@ export const QUERY_USERS = gql`
   } 
 `;
 
+export const QUERY_GAME_SESSION = gql`
+  query getGameSession($gameSessionId: ID!) {
+    gameSession(gameSessionId: $gameSessionId) {
+      _id
+      player {
+        username
+      }
+      score
+    }
+  }
+`;
 export const QUERY_THOUGHTS = gql`
   query getThoughts {
     thoughts {

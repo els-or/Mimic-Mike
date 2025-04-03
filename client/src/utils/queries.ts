@@ -15,7 +15,7 @@ export const QUERY_GAME_SESSION = gql`
     gameSession(gameSessionId: $gameSessionId) {
       _id
       player {
-        username
+        _id
       }
       score
     }

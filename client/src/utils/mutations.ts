@@ -24,13 +24,24 @@ export const ADD_USER = gql`
 }
 `;
 
+export const UPDATE_USER = gql`
+  mutation updateUser($_id: ID!, $input: GameSessionInput!) {
+    updateUser(_id: $_id, input: $input) {
+      _id
+      highScore
+    }
+  }
+`;
+
+// Ensure that GameSessionInput is defined in your GraphQL schema and matches the expected input structure.
+
+
 export const CREATE_GAME_SESSION = gql`
   mutation createGameSession($score: Int!) {
     createGameSession(score: $score) {
       _id
       player {
         _id
-        username
       }
       score
     }

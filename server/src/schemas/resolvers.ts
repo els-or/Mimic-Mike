@@ -24,10 +24,21 @@ interface UserArgs {
 
 interface GameSessionArgs {
   _id: string;
-  player: UserArgs;
+  player: {
+    _id: string;
+    username: string;
+  };
   score: number;
 }
 
+interface GameSessionInput {
+  _id: string;
+  player: {
+    _id: string;
+    username: string;
+  };
+  score: number;
+}
 
 const resolvers = {
   Query: {
@@ -85,43 +96,51 @@ const resolvers = {
       return { token, user };
     },
 
-    updateUser: async (_parent: any, {...input }: GameSessionArgs, context: any) => {
+    updateUser: async (_parent: any, { input }: { input: GameSessionInput }, context: any) => {
       if(context.user) {
-
-          //get user by id. This is the user assosicated with the game session
-          const user = await User.findById(input.player._id);
-
-          //if user not found, throw error
+          console.log('Updating user with game session:', input);
+          console.log('Game session ID:', input._id);
+          console.log('Game session player ID:', input.player._id);
+         
+            const user = await User.findById(context.user._id).select('highScore');
+        
+          // //if user not found, throw error
           if (!user) {
             throw new Error('User not found');
           }
+          console.log('\nuser current highscore:', user.highScore);
+
+          console.log(' \n context user id:', context.user._id);
+          console.log('input player id:', input.player._id);
+     
           //check to see if the context user doesn't match the game session user
-          if(context.user._id !== user._id) {
+          if(context.user._id !== input.player._id) {
             throw new AuthenticationError('You are not authorized to update this user.');
           }
-          //if there is a match, compare the scores
           else {
-            //??? I'm not sure if this is the correct comparison.
             //compare the score from the game session to the highscore of the user
-            if (input.score > user.highScore) {
+            console.log('Comparing scores...');
+            console.log('Game session score:', input.score);
+            console.log('User high score:', user.highScore);
 
-              //if score is greater than highscore, update highscore
-              //??? This is updating the user in as it is in the UserArgs. Not sure if I should be updating this or the context user eventhough they are the same.
-              // await User.findOneAndUpdate(
-              //   { _id: input.player._id },
-              //   { highScore: input.score },
-              //   { new: true }
-              // );
-              await User.findByIdAndUpdate(
-                { _id: context.user._id },
-                { highScore: input.score },
-                { new: true }
-              );
+            if (input.score > user.highScore) {
+                console.log('New high score:', input.score);
+                console.log('Old high score:', user.highScore);
+                
+                //if score is greater than highscore, update highscore
+                await User.findByIdAndUpdate(
+                  { _id: context.user._id },
+                  { highScore: input.score },
+                  { new: true }
+                );
             }
           }
           
       }
-      throw new AuthenticationError('Could not authenticate user.');  
+      else{
+        throw new AuthenticationError('Could not authenticate user.');  
+      }
+      
     },
 
 
@@ -138,6 +157,8 @@ const resolvers = {
         //create a new game session with the logged in user as the player
         const newGameSession = await GameSession.create({
           player: context.user._id, //use the authenticated user's id
+          //TODO: figure out how to get the username from the context user
+          //player: context.user.username, //use the authenticated user's username
           score, //??? Should this be score: score? Or is this correct?
         });
 

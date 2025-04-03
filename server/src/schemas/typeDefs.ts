@@ -13,8 +13,13 @@ const typeDefs = `
     score: Int
   }
 
+  input PlayerInput {
+    _id: ID!
+  }
+
   input GameSessionInput {
-    player: UserInput!
+    _id: ID!
+    player: PlayerInput!
     score: Int!
   }
   

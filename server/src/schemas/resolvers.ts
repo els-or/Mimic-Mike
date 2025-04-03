@@ -1,4 +1,4 @@
-import { Thought, User } from '../models/index.js';
+import { GameSession, User } from '../models/index.js';
 import { signToken, AuthenticationError } from '../utils/auth.js'; 
 
 // Define types for the arguments
@@ -16,55 +16,39 @@ interface LoginUserArgs {
 }
 
 interface UserArgs {
+  _id: string;
   username: string;
+  highScore: number;
 }
 
-interface ThoughtArgs {
-  thoughtId: string;
+interface GameSessionArgs {
+  _id: string;
+  player: UserArgs;
+  score: number;
 }
 
-interface AddThoughtArgs {
-  input:{
-    thoughtText: string;
-    thoughtAuthor: string;
-  }
-}
 
-interface AddCommentArgs {
-  thoughtId: string;
-  commentText: string;
-}
-
-interface RemoveCommentArgs {
-  thoughtId: string;
-  commentId: string;
-}
 
 const resolvers = {
   Query: {
     users: async () => {
-      return User.find().populate('thoughts');
+      return User.find();
     },
-    user: async (_parent: any, { username }: UserArgs) => {
-      return User.findOne({ username }).populate('thoughts');
-    },
-    thoughts: async () => {
-      return await Thought.find().sort({ createdAt: -1 });
-    },
-    thought: async (_parent: any, { thoughtId }: ThoughtArgs) => {
-      return await Thought.findOne({ _id: thoughtId });
+    GameSession: async (_parent: any, { _id }: GameSessionArgs) => {
+      return GameSession.findById(_id).populate('player');
     },
     // Query to get the authenticated user's information
     // The 'me' query relies on the context to check if the user is authenticated
     me: async (_parent: any, _args: any, context: any) => {
-      // If the user is authenticated, find and return the user's information along with their thoughts
+      // If the user is authenticated, find and return the user's information
       if (context.user) {
-        return User.findOne({ _id: context.user._id }).populate('thoughts');
+        return User.findOne({ _id: context.user._id });
       }
       // If the user is not authenticated, throw an AuthenticationError
       throw new AuthenticationError('Could not authenticate user.');
     },
   },
+  
   Mutation: {
     addUser: async (_parent: any, { input }: AddUserArgs) => {
       // Create a new user with the provided username, email, and password
@@ -100,75 +84,31 @@ const resolvers = {
       // Return the token and the user
       return { token, user };
     },
-    addThought: async (_parent: any, { input }: AddThoughtArgs, context: any) => {
-      if (context.user) {
-        const thought = await Thought.create({ ...input });
 
-        await User.findOneAndUpdate(
-          { _id: context.user._id },
-          { $addToSet: { thoughts: thought._id } }
-        );
-
-        return thought;
-      }
-      throw AuthenticationError;
-      ('You need to be logged in!');
-    },
-    addComment: async (_parent: any, { thoughtId, commentText }: AddCommentArgs, context: any) => {
-      if (context.user) {
-        return Thought.findOneAndUpdate(
-          { _id: thoughtId },
-          {
-            $addToSet: {
-              comments: { commentText, commentAuthor: context.user.username },
-            },
-          },
-          {
-            new: true,
-            runValidators: true,
+    updateUser: async (_parent: any, {...input }: GameSessionArgs, context: any) => {
+      if(context.user) {
+          //get user by id
+          const user = await User.findById(input.player._id);
+          //if user not found, throw error
+          if (!user) {
+            throw new Error('User not found');
           }
-        );
-      }
-      throw AuthenticationError;
-    },
-    removeThought: async (_parent: any, { thoughtId }: ThoughtArgs, context: any) => {
-      if (context.user) {
-        const thought = await Thought.findOneAndDelete({
-          _id: thoughtId,
-          thoughtAuthor: context.user.username,
-        });
+          //compare the score from the game session to the highscore of the user
+          if (input.score > user.highScore) {
 
-        if(!thought){
-          throw AuthenticationError;
+          //if score is greater than highscore, update highscore
+          await User.findOneAndUpdate(
+            { _id: input.player._id },
+            { highScore: input.score },
+            { new: true }
+          );
         }
-
-        await User.findOneAndUpdate(
-          { _id: context.user._id },
-          { $pull: { thoughts: thought._id } }
-        );
-
-        return thought;
       }
-      throw AuthenticationError;
-    },
-    removeComment: async (_parent: any, { thoughtId, commentId }: RemoveCommentArgs, context: any) => {
-      if (context.user) {
-        return Thought.findOneAndUpdate(
-          { _id: thoughtId },
-          {
-            $pull: {
-              comments: {
-                _id: commentId,
-                commentAuthor: context.user.username,
-              },
-            },
-          },
-          { new: true }
-        );
+      else {
+        throw new AuthenticationError('Could not authenticate user.');
       }
-      throw AuthenticationError;
-    },
-  },
+    }
+  }
 };
 
 export default resolvers;

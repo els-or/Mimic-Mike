@@ -14,7 +14,6 @@ const typeDefs = `
   }
 
   input GameSessionInput {
-    _id: ID
     player: User!
     score: Int!
   }
@@ -40,6 +39,7 @@ const typeDefs = `
     addUser(input: UserInput!): Auth
     login(email: String!, password: String!): Auth
     updateUser(_id: ID!, input: GameSessionInput!): User
+    createGameSession(input: GameSessionInput!): GameSession
   }
 `;
 

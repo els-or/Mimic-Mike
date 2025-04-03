@@ -108,6 +108,7 @@ const resolvers = {
         throw new AuthenticationError('Could not authenticate user.');
       }
     }
+    //TODO: add createGameSession mutation
   }
 };
 

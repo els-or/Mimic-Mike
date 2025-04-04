@@ -1,45 +1,85 @@
-import { Link } from 'react-router-dom';
-import { type MouseEvent} from 'react';
-import Auth from '../../utils/auth';
+import { useState } from "react";
+import { Link } from "react-router-dom";
+import Auth from "../../utils/auth";
+import "./Header.css";
 
 const Header = () => {
-  const logout = (event: MouseEvent<HTMLButtonElement>) => {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  const logout = (event) => {
     event.preventDefault();
-    // Logs the user out by calling the logout method from Auth
     Auth.logout();
   };
+
+  const toggleMenu = () => {
+    setIsMenuOpen(!isMenuOpen);
+  };
+
   return (
-    <header className="bg-primary text-light mb-4 py-3 flex-row align-center">
-      <div className="container flex-row justify-space-between-lg justify-center align-center">
-        <div>
-          <Link className="text-light" to="/">
-            <h1 className="m-0">Tech Thoughts</h1>
+    <header className="header-glass">
+      <div className="header-content">
+        <div className="logo">
+          <Link to="/">
+            <span className="logo-text">Mimic Mike</span>
           </Link>
-          <p className="m-0">Get into the mind of a programmer.</p>
         </div>
-        <div>
-          {/* Checking if the user is logged in to conditionally render profile link and logout button */}
+
+        <button
+          className={`menu-toggle ${isMenuOpen ? "active" : ""}`}
+          onClick={toggleMenu}
+          aria-label="Toggle navigation menu"
+        >
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+
+        <nav className={`navbar ${isMenuOpen ? "open" : ""}`}>
           {Auth.loggedIn() ? (
             <>
-              <Link className="btn btn-lg btn-info m-2" to="/me">
-                {/* Retrieving the logged-in user's profile to display the username */}
-                {Auth.getProfile().data.username}'s profile
+              <Link
+                to="/profile"
+                className="nav-link"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Profile
               </Link>
-              <button className="btn btn-lg btn-light m-2" onClick={logout}>
+              <Link
+                to="/leaderboard"
+                className="nav-link"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Leaderboard
+              </Link>
+              <button
+                className="logout-btn"
+                onClick={(e) => {
+                  logout(e);
+                  setIsMenuOpen(false);
+                }}
+              >
                 Logout
               </button>
             </>
           ) : (
             <>
-              <Link className="btn btn-lg btn-info m-2" to="/login">
+              <Link
+                to="/login"
+                className="nav-link"
+                onClick={() => setIsMenuOpen(false)}
+              >
                 Login
               </Link>
-              <Link className="btn btn-lg btn-light m-2" to="/signup">
-                Signup
+              <Link
+                to="/signup"
+                className="nav-link signup"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Sign Up
               </Link>
             </>
           )}
-        </div>
+        </nav>
       </div>
     </header>
   );

@@ -40,14 +40,22 @@ const GameBoard = () => {
 
   return (
     <div>
-    {!gameStarted && (
+    {gameStarted ? (
         <div>
-            <h1>Welcome to the Game!</h1>
-            <button onClick={handleCreateSession}>Start New Game Session</button>
-            {loading && <p>Loading...</p>}
-            {error && <p>Error: {error.message}</p>}
-            {data && <p>Game session created with ID: {data.createGameSession._id}</p>}
+        <h1>Game Session ID: {gameSession?._id}</h1>
+        <p>Player ID: {gameSession?.player._id}</p>
+        <p>Score: {gameSession?.score}</p>
+        {/* Add your game logic here */}
         </div>
+    ) : 
+    (
+    <div>
+        <h1>Welcome to the Game!</h1>
+        <button onClick={handleCreateSession}>Start New Game Session</button>
+        {loading && <p>Loading...</p>}
+        {error && <p>Error: {error.message}</p>}
+        {data && <p>Game session created with ID: {data.createGameSession._id}</p>}
+    </div>
     )}
 
     </div>

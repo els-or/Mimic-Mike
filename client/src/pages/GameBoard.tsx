@@ -16,7 +16,8 @@ const GameBoard = () => {
   //const [score, setScore] = useState(0); // Initialize score state
   //create state to check if the game is started
   const [gameStarted, setGameStarted] = useState(false);
-
+  const [gameSequence, setGameSequence] = useState<string[]>([]); // State to store the game sequence
+  const [userSequence, setUserSequence] = useState<string[]>([]); // State to store the user's sequence
   //create a state to check if the game pattern is being played
 
   //TODO: add a useEffect to wait to display the game session data
@@ -39,6 +40,9 @@ const GameBoard = () => {
     }
   };
 
+  const generateRandomSequence = () => {
+    
+  }
 
 
   return (
@@ -63,6 +67,7 @@ const GameBoard = () => {
                     {button.text}
                 </button>
             ))}
+          
         </div>
     </div>
     ) : 

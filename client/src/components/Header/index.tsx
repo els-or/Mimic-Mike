@@ -25,6 +25,9 @@ const Header = () => {
                 {/* Retrieving the logged-in user's profile to display the username */}
                 {Auth.getProfile().data.username}'s profile
               </Link>
+              <Link className="btn btn-lg btn-light m-2" to="/game">
+                Play Game
+              </Link>
               <button className="btn btn-lg btn-light m-2" onClick={logout}>
                 Logout
               </button>

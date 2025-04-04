@@ -1,7 +1,10 @@
 import { useMutation } from "@apollo/client";
 import { CREATE_GAME_SESSION } from "../utils/mutations";
 import { useState } from "react";
+//import PropTypes from "prop-types";
+import { boardOneButtons } from "../utils/buttonArray";
 
+//??? see if you can pass in an array of button objects
 const GameBoard = () => {
   const [createGameSession, { data, loading, error }] = useMutation(CREATE_GAME_SESSION);
   // State to store the game session data
@@ -14,9 +17,9 @@ const GameBoard = () => {
   //create state to check if the game is started
   const [gameStarted, setGameStarted] = useState(false);
 
-  //create 
+  //create a state to check if the game pattern is being played
 
-
+  //TODO: add a useEffect to wait to display the game session data
 
   console.log("Session ID:", gameSession?._id); // Log the session ID for debugging
   console.log("Data:", data); // Log the data for debugging
@@ -46,7 +49,22 @@ const GameBoard = () => {
         <p>Player ID: {gameSession?.player._id}</p>
         <p>Score: {gameSession?.score}</p>
         {/* Add your game logic here */}
+        <div className="game-board">
+            {boardOneButtons.map((button) => (
+                <button
+                    key={button.id}
+                    style={{ backgroundColor: button.color }}
+                    onClick={() => {
+                        // Handle button click
+                        console.log(`Button ${button.text} clicked`);
+                        // Play sound here if needed
+                    }}
+                >
+                    {button.text}
+                </button>
+            ))}
         </div>
+    </div>
     ) : 
     (
     <div>
@@ -62,4 +80,16 @@ const GameBoard = () => {
   );
 
 }
+
+// GameBoard.propTypes = {
+//   boardOneButtons: PropTypes.arrayOf(
+//     PropTypes.shape({
+//       id: PropTypes.number.isRequired,
+//       text: PropTypes.string.isRequired,
+//       color: PropTypes.string.isRequired,
+//       sound: PropTypes.string.isRequired,
+//     })
+//   ).isRequired,
+// };
+
 export default GameBoard;

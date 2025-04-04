@@ -1,4 +1,5 @@
-import { Thought, User } from '../models/index.js';
+//import e from 'express';
+import { GameSession, User } from '../models/index.js';
 import { signToken, AuthenticationError } from '../utils/auth.js'; 
 
 // Define types for the arguments
@@ -15,56 +16,45 @@ interface LoginUserArgs {
   password: string;
 }
 
-interface UserArgs {
-  username: string;
+
+interface GameSessionArgs {
+  _id: string;
+  player: {
+    _id: string;
+    username: string;
+  };
+  score: number;
 }
 
-interface ThoughtArgs {
-  thoughtId: string;
-}
-
-interface AddThoughtArgs {
-  input:{
-    thoughtText: string;
-    thoughtAuthor: string;
-  }
-}
-
-interface AddCommentArgs {
-  thoughtId: string;
-  commentText: string;
-}
-
-interface RemoveCommentArgs {
-  thoughtId: string;
-  commentId: string;
+interface GameSessionInput {
+  _id: string;
+  player: {
+    _id: string;
+    username: string;
+  };
+  score: number;
 }
 
 const resolvers = {
   Query: {
     users: async () => {
-      return User.find().populate('thoughts');
+      return User.find();
     },
-    user: async (_parent: any, { username }: UserArgs) => {
-      return User.findOne({ username }).populate('thoughts');
-    },
-    thoughts: async () => {
-      return await Thought.find().sort({ createdAt: -1 });
-    },
-    thought: async (_parent: any, { thoughtId }: ThoughtArgs) => {
-      return await Thought.findOne({ _id: thoughtId });
+    gameSession: async (_parent: any, { _id }: GameSessionArgs) => {
+      return GameSession.findById(_id).populate('player');
     },
     // Query to get the authenticated user's information
     // The 'me' query relies on the context to check if the user is authenticated
     me: async (_parent: any, _args: any, context: any) => {
-      // If the user is authenticated, find and return the user's information along with their thoughts
+      // If the user is authenticated, find and return the user's information
       if (context.user) {
-        return User.findOne({ _id: context.user._id }).populate('thoughts');
+        return User.findOne({ _id: context.user._id });
       }
       // If the user is not authenticated, throw an AuthenticationError
       throw new AuthenticationError('Could not authenticate user.');
     },
   },
+  
   Mutation: {
     addUser: async (_parent: any, { input }: AddUserArgs) => {
       // Create a new user with the provided username, email, and password
@@ -100,74 +90,80 @@ const resolvers = {
       // Return the token and the user
       return { token, user };
     },
-    addThought: async (_parent: any, { input }: AddThoughtArgs, context: any) => {
-      if (context.user) {
-        const thought = await Thought.create({ ...input });
 
-        await User.findOneAndUpdate(
-          { _id: context.user._id },
-          { $addToSet: { thoughts: thought._id } }
-        );
-
-        return thought;
-      }
-      throw AuthenticationError;
-      ('You need to be logged in!');
-    },
-    addComment: async (_parent: any, { thoughtId, commentText }: AddCommentArgs, context: any) => {
-      if (context.user) {
-        return Thought.findOneAndUpdate(
-          { _id: thoughtId },
-          {
-            $addToSet: {
-              comments: { commentText, commentAuthor: context.user.username },
-            },
-          },
-          {
-            new: true,
-            runValidators: true,
+    updateUser: async (_parent: any, { input }: { input: GameSessionInput }, context: any) => {
+      if(context.user) {
+          console.log('Updating user with game session:', input);
+          console.log('Game session ID:', input._id);
+          console.log('Game session player ID:', input.player._id);
+         
+            const user = await User.findById(context.user._id).select('highScore');
+        
+          // //if user not found, throw error
+          if (!user) {
+            throw new Error('User not found');
           }
-        );
+          console.log('\nuser current highscore:', user.highScore);
+
+          console.log(' \n context user id:', context.user._id);
+          console.log('input player id:', input.player._id);
+     
+          //check to see if the context user doesn't match the game session user
+          if(context.user._id !== input.player._id) {
+            throw new AuthenticationError('You are not authorized to update this user.');
+          }
+          else {
+            //compare the score from the game session to the highscore of the user
+            console.log('Comparing scores...');
+            console.log('Game session score:', input.score);
+            console.log('User high score:', user.highScore);
+
+            if (input.score > user.highScore) {
+                console.log('New high score:', input.score);
+                console.log('Old high score:', user.highScore);
+                
+                //if score is greater than highscore, update highscore
+                await User.findByIdAndUpdate(
+                  { _id: context.user._id },
+                  { highScore: input.score },
+                  { new: true }
+                );
+            }
+          }
+          
       }
-      throw AuthenticationError;
+      else{
+        throw new AuthenticationError('Could not authenticate user.');  
+      }
+      
     },
-    removeThought: async (_parent: any, { thoughtId }: ThoughtArgs, context: any) => {
-      if (context.user) {
-        const thought = await Thought.findOneAndDelete({
-          _id: thoughtId,
-          thoughtAuthor: context.user.username,
+
+
+    createGameSession: async (_parent: any, { score }: { score: number }, context: any) => {
+      //Ensusure the user is authenticated
+      if(!context.user) {
+        throw new AuthenticationError('You need to be logged in to create a game session!');
+      }
+
+      try{
+        console.log('Creating game session for user:', context.user._id);
+        console.log("user information:", context.user);
+        console.log('Score:', score);
+        //create a new game session with the logged in user as the player
+        const newGameSession = await GameSession.create({
+          player: context.user._id, //use the authenticated user's id
+          //TODO: figure out how to get the username from the context user
+          //player: context.user.username, //use the authenticated user's username
+          score, //??? Should this be score: score? Or is this correct?
         });
 
-        if(!thought){
-          throw AuthenticationError;
-        }
-
-        await User.findOneAndUpdate(
-          { _id: context.user._id },
-          { $pull: { thoughts: thought._id } }
-        );
-
-        return thought;
+        return newGameSession; //return the new game session
+      }catch (error) {
+        console.error('Error creating game session:', error);
+        throw new Error('Failed to create game session');
       }
-      throw AuthenticationError;
     },
-    removeComment: async (_parent: any, { thoughtId, commentId }: RemoveCommentArgs, context: any) => {
-      if (context.user) {
-        return Thought.findOneAndUpdate(
-          { _id: thoughtId },
-          {
-            $pull: {
-              comments: {
-                _id: commentId,
-                commentAuthor: context.user.username,
-              },
-            },
-          },
-          { new: true }
-        );
-      }
-      throw AuthenticationError;
-    },
+
   },
 };
 

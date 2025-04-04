@@ -1,4 +1,4 @@
-import Thought from './Thought.js';
+import GameSession from './GameSession.js';
 import User from './User.js';
 
-export { Thought, User };
+export { GameSession, User };

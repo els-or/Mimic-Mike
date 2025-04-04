@@ -24,33 +24,25 @@ export const ADD_USER = gql`
 }
 `;
 
-export const ADD_THOUGHT = gql`
-  mutation AddThought($input: ThoughtInput!) {
-    addThought(input: $input) {
+export const UPDATE_USER = gql`
+  mutation updateUser($_id: ID!, $input: GameSessionInput!) {
+    updateUser(_id: $_id, input: $input) {
       _id
-      thoughtText
-      thoughtAuthor
-      createdAt
-      comments {
-        _id
-        commentText
-      }
+      highScore
     }
   }
 `;
 
-export const ADD_COMMENT = gql`
-  mutation addComment($thoughtId: ID!, $commentText: String!) {
-    addComment(thoughtId: $thoughtId, commentText: $commentText) {
+
+export const CREATE_GAME_SESSION = gql`
+  mutation createGameSession($score: Int!) {
+    createGameSession(score: $score) {
       _id
-      thoughtText
-      thoughtAuthor
-      createdAt
-      comments {
+      player {
         _id
-        commentText
-        createdAt
       }
+      score
     }
   }
 `;
+

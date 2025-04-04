@@ -16,11 +16,6 @@ interface LoginUserArgs {
   password: string;
 }
 
-interface UserArgs {
-  _id: string;
-  username: string;
-  highScore: number;
-}
 
 interface GameSessionArgs {
   _id: string;

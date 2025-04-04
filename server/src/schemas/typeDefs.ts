@@ -4,28 +4,25 @@ const typeDefs = `
     username: String
     email: String
     password: String
-    thoughts: [Thought]!
+    highScore: Int!
   }
 
-  type Thought {
+  type GameSession {
     _id: ID
-    thoughtText: String
-    thoughtAuthor: String
-    createdAt: String
-    comments: [Comment]!
+    player: User
+    score: Int
   }
 
-  type Comment {
-    _id: ID
-    commentText: String
-    createdAt: String
+  input PlayerInput {
+    _id: ID!
   }
 
-  input ThoughtInput {
-    thoughtText: String!
-    thoughtAuthor: String!
+  input GameSessionInput {
+    _id: ID!
+    player: PlayerInput!
+    score: Int!
   }
-
+  
   input UserInput {
     username: String!
     email: String!
@@ -39,19 +36,15 @@ const typeDefs = `
 
   type Query {
     users: [User]
-    user(username: String!): User
-    thoughts: [Thought]!
-    thought(thoughtId: ID!): Thought
     me: User
+    gameSession(_id: ID!): GameSession
   }
 
   type Mutation {
     addUser(input: UserInput!): Auth
     login(email: String!, password: String!): Auth
-    addThought(input: ThoughtInput!): Thought
-    addComment(thoughtId: ID!, commentText: String!): Thought
-    removeThought(thoughtId: ID!): Thought
-    removeComment(thoughtId: ID!, commentId: ID!): Thought
+    updateUser(_id: ID!, input: GameSessionInput!): User
+    createGameSession(score: Int!): GameSession
   }
 `;
 

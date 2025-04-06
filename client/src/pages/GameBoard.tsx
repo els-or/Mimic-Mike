@@ -3,7 +3,7 @@ import { CREATE_GAME_SESSION } from "../utils/mutations";
 import { use, useEffect, useState } from "react";
 //import PropTypes from "prop-types";
 import { boardOneButtons } from "../utils/buttonArray";
-import { getRandomInt } from "../utils/gameLogicHelpers";
+import { getRandomInt, playSound } from "../utils/gameLogicHelpers";
 
 //??? see if you can pass in an array of button objects
 const GameBoard = () => {
@@ -41,7 +41,6 @@ const GameBoard = () => {
       //update the score state with the initial score from the response
       setScore(data.createGameSession.score);
       console.log("Game session created:", data.createGameSession);
-      resetGame(); // Call resetGame after creating the session
     }catch (error) {
       console.error("Error creating game session:", error);
     }
@@ -51,16 +50,16 @@ const GameBoard = () => {
   const resetGame = async () => {
     console.log("running resetGame");
     //if gameStarted is true
-    if (gameStarted) {
+    //if (gameStarted) {
         //set gameStarted to false
         setGameStarted(false);
-    }
+    //}
     
     //if loading is false
-    if (!isLoading) {
+    //if (!isLoading) {
         //set loading to true
         setIsLoading(true);
-    }
+    //}
 
     //make sure Sequence playing is false
     setSequencePlaying(false);
@@ -82,63 +81,80 @@ const GameBoard = () => {
 
     //set gameStarted to true
     setGameStarted(true);
-
-    setTimeout(() => {
-      playSequence(); // Call playSequence to start the game
-    }, 1000); // Delay execution by 1 second
   }
+
+
+  const startGame = () => {
+    console.log("running startGame");
+  
+    setGameStarted(true);
+    setIsLoading(true);
+    setSequencePlaying(false);
+    setGameSequence([]);
+    setUserSequence([]);
+    setScore(0);
+    setRound(0);
+  };
+  
 
   //this method will randomly choose a button and trigger an animation after a short delay
-  const getNextInSequence = () => {
-    console.log("running getNextInSequence");
-    try{
-          //call getRandomInt (from the gameLogicHelpers file) save the result to a variable
-          //--- use 1 for the min and 4 for the max as there are 4 buttons.
-          const randomInt = getRandomInt(1, 4);
+  // const getNextInSequence = () => {
+  //   console.log("running getNextInSequence");
+  //   try{
+  //         //call getRandomInt (from the gameLogicHelpers file) save the result to a variable
+  //         //--- use 1 for the min and 4 for the max as there are 4 buttons.
+  //         const randomInt = getRandomInt(1, 4);
 
-          //use the Array find method() to find a button object in the buttonArray that has an id equal in value to the number returned by getRandomInt
-          const button = boardOneButtons.find((button) => button.id === randomInt);
-          //if the button is found, set the activeButton state to the button's text value and play the sound associated with that button
-          if (button) {
-              //add it to the gameSequence Array by calling setGameSequence
-              setGameSequence((prevSequence) => [...prevSequence, button.text]);
-          } else {
-              throw new Error("Button not found");
-          }
+  //         //use the Array find method() to find a button object in the buttonArray that has an id equal in value to the number returned by getRandomInt
+  //         const button = boardOneButtons.find((button) => button.id === randomInt);
+  //         //if the button is found, set the activeButton state to the button's text value and play the sound associated with that button
+  //         if (button) {
+  //             //add it to the gameSequence Array by calling setGameSequence
+  //             setGameSequence((prevSequence) => [...prevSequence, button.text]);
+  //         } else {
+  //             throw new Error("Button not found");
+  //         }
 
-    }catch (error) {
-        console.error("Error in getNextInSequence:", error);
-    }
-  }
+  //   }catch (error) {
+  //       console.error("Error in getNextInSequence:", error);
+  //   }
+  // }
 
   const playSequence = () => {
-    //if(loading) return; // Prevent playing sequence if loading
     console.log("running playSequence");
-    //set sequencePlaying to true
     setSequencePlaying(true);
-    //call getNextInSequence to add a button to the gameSequence array
-    getNextInSequence();
-    //TODO: fix issue with the game needing to be reset after the first round
-    //use the gameSequence array to play the sounds for each button in the sequence
-    //use the forEach method to loop through the gameSequence array and play the sound associated with each button
-    gameSequence.forEach((buttonText, index) => {
-        //find the button object in the buttonArray that has a text value equal to the buttonText value
-        const button = boardOneButtons.find((button) => button.text === buttonText);
-        //if the button is found, play the sound associated with that button after a delay of 1 second multiplied by the index of the button in the gameSequence array
-        if (button) {
-            setTimeout(() => {
-                console.log(`Playing sound for ${button.text}`);
-                //playSound(button.sound); // Uncomment this line to play the sound
-                setActiveButton(button.text); // Set activeButton state to highlight the button
-            }, 1000 * index);
-        }
-    });  
-    console.log("gameSequence:", gameSequence); // Log the game sequence for debugging
-    //increment round by one
-    setRound((prevRound) => prevRound + 1);
-    //set sequencePlaying to false
+  
+    const randomInt = getRandomInt(1, 4);
+    const nextButton = boardOneButtons.find((b) => b.id === randomInt);
+    if (!nextButton) {
+      console.error("Invalid button");
+      return;
+    }
+  
+    const newSequence = [...gameSequence, nextButton.text];
+    setGameSequence(newSequence);
+  
+    newSequence.forEach((buttonText, index) => {
+      const button = boardOneButtons.find((b) => b.text === buttonText);
+      if (button) {
+          const delay = 1000 * index;
+
+          // Set active state to highlight
+          setTimeout(() => {
+            playSound(button.sound);
+            setActiveButton(button.text);
+          }, delay);
+      
+          // Reset active state (e.g., after 900ms)
+          setTimeout(() => {
+            setActiveButton(null);
+          }, delay + 900);
+      }
+    });
+  
+    setRound((prev) => prev + 1);
     setSequencePlaying(false);
-  }
+  };
 
 
 
@@ -152,24 +168,29 @@ const GameBoard = () => {
         {/* Add your game logic here */}
         <div className="game-board">
             {boardOneButtons.map((button) => (
-                <button
-                    key={button.id}
-                    style={{ backgroundColor: button.color }}
-                    onClick={() => {
-                        // Handle button click
-                        console.log(`Button ${button.text} clicked`);
-                        // Play sound here if needed
-                    }}
-                >
-                    {button.text}
-                </button>
+              <button
+                key={button.id}
+                style={{
+                  backgroundColor: activeButton === button.text ? button.color[1]: button.color[0],
+                  transition: "background-color 0.3s ease"
+                }}
+                onClick={() => {
+                  // Handle button click
+                  console.log(`Button ${button.text} clicked`);
+                  // Play sound here if needed
+                  playSound(button.sound);
+                }}  
+              >
+                {button.text}
+              </button>
             ))}
           {/*make a button to simulate moving on to the next round so the sequence can be tested.*/}
+          <p>Game Sequence: {gameSequence.join(", ")}</p>
           <br />
           <p>round: {round}</p>
-          <button onClick={playSequence}>Next Round</button>
+          <button onClick={playSequence}>{gameSequence.length > 0 ? "Next Round" : "Start Sequence"}</button>
           <br />
-          <button onClick={resetGame}>Reset Game</button>
+          <button onClick={()=>{resetGame()}}>Reset Game</button>
           <br />
           <button onClick={() => setGameStarted(false)}>End Game</button>
           <br />
@@ -177,13 +198,19 @@ const GameBoard = () => {
     </div>
     ) : 
     (
-    <div>
-        <h1>Welcome to the Game!</h1>
-        <button onClick={resetGame}>Start New Game Session</button>
-        {loading && <p>Loading...</p>}
-        {error && <p>Error: {error.message}</p>}
-        {data && <p>Game session created with ID: {data.createGameSession._id}</p>}
-    </div>
+      <div>
+          <h1>Welcome to the Game!</h1>
+          {!gameSession ? (
+            <button onClick={handleCreateSession}>Create Game Session</button>
+          ) : (
+            <>
+              <p>Game session created with ID: {gameSession._id}</p>
+              <button onClick={startGame}>Start Game</button>
+            </>
+          )}
+          {loading && <p>Loading...</p>}
+          {error && <p>Error: {error.message}</p>}
+        </div>
     )}
 
     </div>

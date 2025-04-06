@@ -43,6 +43,13 @@ const resolvers = {
     gameSession: async (_parent: any, { _id }: GameSessionArgs) => {
       return GameSession.findById(_id).populate('player');
     },
+    // Query to get the top 15 game sessions sorted by highest score
+    gameSessions: async () => {
+      return await GameSession.find()
+        .populate('player')  
+        .sort({ score: -1 })  
+        .limit(15);
+    },
     // Query to get the authenticated user's information
     // The 'me' query relies on the context to check if the user is authenticated
     me: async (_parent: any, _args: any, context: any) => {

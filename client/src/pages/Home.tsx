@@ -144,6 +144,18 @@ const Home = () => {
               <p>to save your scores!</p>
             </div>
           )}
+          {Auth.loggedIn() && (
+            <div className="auth-buttons">
+              <Link to="/SinglePlayer" className="login-button">
+                Single Player
+              </Link>
+              <span>or</span>
+              <Link to="/MultiPlayer" className="signup-button">
+                Multiplayer
+              </Link>
+              <p>Test your skills!</p>
+            </div>
+          )}
         </div>
       </div>
     </>

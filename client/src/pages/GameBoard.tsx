@@ -1,6 +1,6 @@
 import { useMutation } from "@apollo/client";
 import { CREATE_GAME_SESSION } from "../utils/mutations";
-import { useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
 //import PropTypes from "prop-types";
 import { boardOneButtons } from "../utils/buttonArray";
 
@@ -18,6 +18,8 @@ const GameBoard = () => {
   const [gameStarted, setGameStarted] = useState(false);
   const [gameSequence, setGameSequence] = useState<string[]>([]); // State to store the game sequence
   const [userSequence, setUserSequence] = useState<string[]>([]); // State to store the user's sequence
+  const [score, setScore] = useState<number | null>(null);
+  const [round, setRound] = useState<number>(0);
   //create a state to check if the game pattern is being played
 
  const [activeButton, setActiveButton] = useState<string | null>(null);
@@ -32,7 +34,7 @@ const GameBoard = () => {
       setGameSession(data.createGameSession); // Set the game session state with the response data
       console.log("Game session data:", data.createGameSession); // Log the game session data for debugging
       //update the score state with the initial score from the response
-      //setScore(data.createGameSession.score);
+      setScore(data.createGameSession.score);
       console.log("Game session created:", data.createGameSession);
       setGameStarted(true); // Set gameStarted to true when the session is created
     }catch (error) {
@@ -40,23 +42,57 @@ const GameBoard = () => {
     }
   };
 
+  //create function that resets states between games
+  const resetGame = () => {
+    //if gameStarted is true
+        //set gameStarted to false
+    
+    //if loading is false
+        //set loading to true
+
+    //make sure Sequence playing is false
+
+    //reset gameSequence
+    
+    //reset userSequence
+
+    //reset score
+
+    //call handleCreateSession
+
+    //set loading to false
+
+    //set gameStarted to true
+
+    //reset round. This needs to be done last since it triggers a useEffect
+
+  }
+
   //this method will randomly choose a button and trigger an animation after a short delay
   const getNextInSequence = () => {
         //call getRandomInt (from the gameLogicHelpers file) save the result to a variable
             //--- use 1 for the min and 4 for the max as there are 4 buttons.
         //use the Array find method() to find a button object in the buttonArray that has an id equal in value to the number returned by getRandomInt
         //add it to the gameSequence Array by calling setGameSequence
-        
-    
-
-    
   }
 
-  //game loop: if the game is loaded, start a delay, then call getNextInSequence
-  useEffect(() => {
-    //use a for loop
-  },[/*use rounds here */])
-  
+  const playSequence = () => {
+    console.log("running playSequence");
+    //set sequencePlaying to true
+    //take a brief pause
+    //if gameSequence has a length greater than 0
+        //use a for loop to loop through the gameSequence array
+            //call getNextInSequence
+            //console log the color 
+            //pause briefly
+    //else
+        //call getNextInSequence
+        //do a callback for playSequence     
+        
+    //increment round by one
+    //set sequencePlaying to false
+  }
+
 
 
   return (
@@ -81,14 +117,14 @@ const GameBoard = () => {
                     {button.text}
                 </button>
             ))}
-          
+          {/*make a button to simulate moving on to the next round so the sequence can be tested.*/}
         </div>
     </div>
     ) : 
     (
     <div>
         <h1>Welcome to the Game!</h1>
-        <button onClick={handleCreateSession}>Start New Game Session</button>
+        <button onClick={resetGame}>Start New Game Session</button>
         {loading && <p>Loading...</p>}
         {error && <p>Error: {error.message}</p>}
         {data && <p>Game session created with ID: {data.createGameSession._id}</p>}

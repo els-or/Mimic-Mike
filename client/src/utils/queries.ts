@@ -22,6 +22,18 @@ export const QUERY_GAME_SESSION = gql`
   }
 `;
 
+export const QUERY_GAME_SESSIONS = gql`
+  query getGameSessions {
+    gameSessions {
+      _id
+      player {
+        username
+      }
+      score
+    }
+  }
+`;
+
 export const QUERY_ME = gql`
   query me {
     me {

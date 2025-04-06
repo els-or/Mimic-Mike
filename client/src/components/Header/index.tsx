@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { type MouseEvent} from 'react';
+import { type MouseEvent } from 'react';
 import Auth from '../../utils/auth';
 
 const Header = () => {
@@ -28,6 +28,9 @@ const Header = () => {
               <button className="btn btn-lg btn-light m-2" onClick={logout}>
                 Logout
               </button>
+              <Link className="btn btn-lg btn-info m-2" to="/scoreboard">
+                Scoreboard
+              </Link>
             </>
           ) : (
             <>

@@ -28,8 +28,8 @@ const GameBoard = () => {
 
  const [activeButton, setActiveButton] = useState<string | null>(null);
 
-  console.log("Session ID:", gameSession?._id); // Log the session ID for debugging
-  console.log("Data:", data); // Log the data for debugging
+  //console.log("Session ID:", gameSession?._id); // Log the session ID for debugging
+  //console.log("Data:", data); // Log the data for debugging
 
 
   const handleCreateSession = async () => {

@@ -1,6 +1,6 @@
 import { useMutation } from "@apollo/client";
 import { CREATE_GAME_SESSION } from "../utils/mutations";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 //import PropTypes from "prop-types";
 import { boardOneButtons } from "../utils/buttonArray";
 
@@ -20,7 +20,7 @@ const GameBoard = () => {
   const [userSequence, setUserSequence] = useState<string[]>([]); // State to store the user's sequence
   //create a state to check if the game pattern is being played
 
-  //TODO: add a useEffect to wait to display the game session data
+ const [activeButton, setActiveButton] = useState<string | null>(null);
 
   console.log("Session ID:", gameSession?._id); // Log the session ID for debugging
   console.log("Data:", data); // Log the data for debugging
@@ -40,9 +40,23 @@ const GameBoard = () => {
     }
   };
 
-  const generateRandomSequence = () => {
+  //this method will randomly choose a button and trigger an animation after a short delay
+  const getNextInSequence = () => {
+        //call getRandomInt (from the gameLogicHelpers file) save the result to a variable
+            //--- use 1 for the min and 4 for the max as there are 4 buttons.
+        //use the Array find method() to find a button object in the buttonArray that has an id equal in value to the number returned by getRandomInt
+        //add it to the gameSequence Array by calling setGameSequence
+        
+    
+
     
   }
+
+  //game loop: if the game is loaded, start a delay, then call getNextInSequence
+  useEffect(() => {
+    //use a for loop
+  },[/*use rounds here */])
+  
 
 
   return (

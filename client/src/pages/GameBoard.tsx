@@ -12,6 +12,8 @@ import { getRandomInt, playSound } from "../utils/gameLogicHelpers";
   - configure the code to prevent user from clicking while game is playing
   - consider changing conditional checks with buttons to use button.id for comparison instead of button.text
   - remove redundancy between reset game and start game.
+  - update the round number before the sequence plays so the user can see what round they are on.
+  - alter code so game starts immediately after session is created.
  */
 
 
@@ -145,52 +147,111 @@ const GameBoard = () => {
 
   const playSequence = () => {
     console.log("running playSequence");
-    setSequencePlaying(false);
-
+  
     const randomInt = getRandomInt(1, 4);
     const nextButton = boardOneButtons.find((b) => b.id === randomInt);
     if (!nextButton) {
       console.error("Invalid button");
-      //TODO: replace this with a try catch block to handle errors
       return;
     }
+  
     const newSequence = [...gameSequence, nextButton.id.toString()];
     setGameSequence(newSequence);
-
-    setSequencePlaying(true);
-
+    setSequencePlaying(true); // block user input during playback
+  
     newSequence.forEach((buttonId, index) => {
-      const button = boardOneButtons.find((b) => (b.id).toString() === buttonId);
-      if (button) {
-          const delay = 1000 * index;
-
-          // Set active state to highlight
-          setTimeout(() => {
-            console.log(`Seq ${index}: Playing ${button.sound} for button ${button.text}`); // Log the button text for debugging
-            playSound(button.sound);
-            setActiveButton(button.text);
-          }, delay);
-      
-          // Reset active state (e.g., after 900ms)
-          setTimeout(() => {
-            setActiveButton(null);
-          }, delay + 900);
-      }
+      const button = boardOneButtons.find((b) => b.id.toString() === buttonId);
+      if (!button) return;
+  
+      const onTime = 1000 * index;
+  
+      // Light up the button and play the sound
+      setTimeout(() => {
+        //console.log(`Step ${index + 1}: ${button.text}`);
+        console.log(`Seq ${index}: Playing ${button.sound} for button ${button.text}`); // Log the button text for debugging
+        playSound(button.sound);
+        setActiveButton(button.text);
+      }, onTime);
+  
+      // Turn off the button after a short delay
+      setTimeout(() => {
+        setActiveButton(null);
+      }, onTime + 600); // 600ms on, 400ms off before next
     });
   
-    setRound((prev) => prev + 1);
-    setSequencePlaying(false);
+    // End of sequence — re-enable player input
+    const totalTime = newSequence.length * 1000;
+    setTimeout(() => {
+      setSequencePlaying(false);
+      setUserSequence([]);
+      setRound((prev) => prev + 1);
+    }, totalTime + 100);
   };
-
-
-
+  
+  const handlePlayerInput = (buttonId: string) => {
+    console.log("running handlePlayerInput");
+  
+    //Don't allow input if sequence is still playing or user has already completed their inputs
+    if (sequencePlaying) {
+      console.log("Input ignored: Sequence is still playing.");
+      return;
+    }
+    if (userSequence.length >= gameSequence.length) {
+      console.log("Input ignored: user already entered enough inputs.");
+      return;
+    }
+  
+    const button = boardOneButtons.find((b) => b.id.toString() === buttonId);
+    if (!button) {
+      console.error("Button not found");
+      return;
+    }
+  
+    const updatedUserSequence = [...userSequence, button.id.toString()];
+    setUserSequence(updatedUserSequence);
+  
+    const currentIndex = updatedUserSequence.length - 1;
+    const isCorrect = updatedUserSequence[currentIndex] === gameSequence[currentIndex];
+  
+    // Show feedback (sound & highlight)
+    playSound(button.sound);
+    setActiveButton(button.text);
+    setTimeout(() => setActiveButton(null), 300);
+  
+    if (!isCorrect) {
+      console.log("INCORRECT");
+      resetGame();
+      return;
+    }
+  
+    console.log("CORRECT");
+    
+  
+    //If this was the final correct input for the round
+    if (updatedUserSequence.length === gameSequence.length) {
+      console.log("Round complete!");
+      // Optionally delay next round so it's not too abrupt
+      setTimeout(() => {
+        setScore((prev) => prev + 1); // Increment score
+        setUserSequence([]); // reset input for the new round
+        playSequence();      // begin next round
+      }, 1000);
+    }
+  
+    console.log("User Sequence: ", updatedUserSequence);
+    console.log("Game Sequence: ", gameSequence);
+  };
+  
+  
+  
+ 
   return (
     <div>
     {gameStarted ? (
         <div>
         <h1>Game Session ID: {gameSession?._id}</h1>
         <p>Player ID: {gameSession?.player._id}</p>
-        <p>Score: {gameSession?.score}</p>
+        <p>Score: {score}</p>
         {/* Add your game logic here */}
         <div className="game-board">
             {boardOneButtons.map((button) => (
@@ -200,11 +261,12 @@ const GameBoard = () => {
                   backgroundColor: activeButton === button.text ? button.color[1]: button.color[0],
                   transition: "background-color 0.3s ease"
                 }}
+                //only let user click the button if the sequence is not playing
+                // disabled={sequencePlaying}
                 onClick={() => {
                   // Handle button click
                   console.log(`Button ${button.text} clicked`);
-                  // Play sound here if needed
-                  playSound(button.sound);
+                  handlePlayerInput(button.id.toString());
                 }}  
               >
                 {button.text}
@@ -212,9 +274,10 @@ const GameBoard = () => {
             ))}
           {/*make a button to simulate moving on to the next round so the sequence can be tested.*/}
           <p>Game Sequence: {gameSequence.join(", ")}</p>
+          <p>User Sequence: {userSequence.join(", ")}</p>
           <br />
           <p>round: {round}</p>
-          <button onClick={playSequence}>{gameSequence.length > 0 ? "Next Round" : "Start Sequence"}</button>
+          <button onClick={playSequence}>{gameStarted ? "Next Round" : "Start Sequence"}</button>
           <br />
           <button onClick={()=>{resetGame()}}>Reset Game</button>
         </div>

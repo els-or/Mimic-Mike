@@ -64,7 +64,7 @@ const GameBoard = () => {
 
     //set gameStarted to true
 
-    //reset round. This needs to be done last since it triggers a useEffect
+    //call playSequence
 
   }
 

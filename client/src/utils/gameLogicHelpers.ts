@@ -8,7 +8,7 @@ export const getRandomInt = (min: number, max: number): number => {
 }
 
 export const playSound = async (sound: string) => {
-    console.log("Playing sound:", sound); // Log the sound for debugging
+    //console.log("Playing sound:", sound); // Log the sound for debugging
     const audio = new Audio(sound);
     audio.play().catch(err => {
         console.error("Audio play error:", err);

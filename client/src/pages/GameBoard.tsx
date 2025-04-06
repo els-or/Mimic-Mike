@@ -145,25 +145,28 @@ const GameBoard = () => {
 
   const playSequence = () => {
     console.log("running playSequence");
-    setSequencePlaying(true);
-  
+    setSequencePlaying(false);
+
     const randomInt = getRandomInt(1, 4);
     const nextButton = boardOneButtons.find((b) => b.id === randomInt);
     if (!nextButton) {
       console.error("Invalid button");
+      //TODO: replace this with a try catch block to handle errors
       return;
     }
-  
-    const newSequence = [...gameSequence, nextButton.text];
+    const newSequence = [...gameSequence, nextButton.id.toString()];
     setGameSequence(newSequence);
-  
-    newSequence.forEach((buttonText, index) => {
-      const button = boardOneButtons.find((b) => b.text === buttonText);
+
+    setSequencePlaying(true);
+
+    newSequence.forEach((buttonId, index) => {
+      const button = boardOneButtons.find((b) => (b.id).toString() === buttonId);
       if (button) {
           const delay = 1000 * index;
 
           // Set active state to highlight
           setTimeout(() => {
+            console.log(`Seq ${index}: Playing ${button.sound} for button ${button.text}`); // Log the button text for debugging
             playSound(button.sound);
             setActiveButton(button.text);
           }, delay);
@@ -214,9 +217,6 @@ const GameBoard = () => {
           <button onClick={playSequence}>{gameSequence.length > 0 ? "Next Round" : "Start Sequence"}</button>
           <br />
           <button onClick={()=>{resetGame()}}>Reset Game</button>
-          <br />
-          <button onClick={() => setGameStarted(false)}>End Game</button>
-          <br />
         </div>
     </div>
     ) : 

@@ -11,6 +11,7 @@ import { getRandomInt, playSound } from "../utils/gameLogicHelpers";
   - try to find uniform test sounds 
   - configure the code to prevent user from clicking while game is playing
   - consider changing conditional checks with buttons to use button.id for comparison instead of button.text
+  - remove redundancy between reset game and start game.
  */
 
 
@@ -105,7 +106,7 @@ const GameBoard = () => {
     setGameStarted(true);
   }
 
-
+//startGame seems to be redundant.
   const startGame = () => {
     console.log("running startGame");
   

@@ -48,6 +48,7 @@ const GameBoard = () => {
   //State to block user input while the sequence is playing
   const [inputLocked, setInputLocked] = useState<boolean>(false);
 
+
   //State to check if the game is loading
   //TODO: verify if this is neccessary
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -125,7 +126,7 @@ const GameBoard = () => {
   
     const newSequence = [...gameSequence, nextButton.id.toString()];
     setGameSequence(newSequence);
-    setInputLocked(true); // Lock input while sequence is playing
+    setInputLocked(true); //Lock input while sequence is playing
   
     newSequence.forEach((buttonId, index) => {
       const button = boardOneButtons.find((b) => b.id.toString() === buttonId);

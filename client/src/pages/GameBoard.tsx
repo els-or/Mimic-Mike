@@ -45,8 +45,8 @@ const GameBoard = () => {
   //State to store the round that the game is currently on
   const [round, setRound] = useState<number>(0);
 
-  //State to check if the game pattern is being played (used to prevent player from interacting with any buttons until sequence has finished playing)
-  const [sequencePlaying, setSequencePlaying] = useState<boolean>(false);
+  //State to block user input while the sequence is playing
+  const [inputLocked, setInputLocked] = useState<boolean>(false);
 
   //State to check if the game is loading
   //TODO: verify if this is neccessary
@@ -91,11 +91,13 @@ const GameBoard = () => {
     console.log("---------------------\n");
     
     setIsLoading(true);
-    setSequencePlaying(false);
     setGameSequence([]);
     setUserSequence([]);
     setScore(0);
     setRound(0);
+
+    setInputLocked(false);
+
     setIsLoading(false);
 
     //Important: Do this last so the game UI sees a fully initialized state
@@ -123,7 +125,7 @@ const GameBoard = () => {
   
     const newSequence = [...gameSequence, nextButton.id.toString()];
     setGameSequence(newSequence);
-    setSequencePlaying(true); // block user input during playback
+    setInputLocked(true); // Lock input while sequence is playing
   
     newSequence.forEach((buttonId, index) => {
       const button = boardOneButtons.find((b) => b.id.toString() === buttonId);
@@ -148,12 +150,14 @@ const GameBoard = () => {
     // End of sequence — re-enable player input
     const totalTime = newSequence.length * 1000;
     setTimeout(() => {
-      setSequencePlaying(false);
+      setInputLocked(false); //Unlock input after sequence is done
       setUserSequence([]);
       setRound((prev) => prev + 1);
+
       console.log("---------------------")
       console.log("playSequence FINISHED");
       console.log("---------------------\n")
+
     }, totalTime + 100);
 
   };
@@ -163,11 +167,12 @@ const GameBoard = () => {
     console.log("running handlePlayerInput");
     console.log("---------------------\n");
   
-    //Don't allow input if sequence is still playing or user has already completed their inputs
-    if (sequencePlaying) {
-      console.log("Input ignored: Sequence is still playing.");
+
+    if (inputLocked) {
+      console.log("Input ignored: user input is locked.");
       return;
     }
+
     if (userSequence.length >= gameSequence.length) {
       console.log("Input ignored: user already entered enough inputs.");
       return;
@@ -235,10 +240,8 @@ const GameBoard = () => {
                 style={{
                   backgroundColor: activeButton === button.text ? button.color[1]: button.color[0],
                   transition: "background-color 0.3s ease",
-                  pointerEvents: sequencePlaying ? "none" : "auto", // Disable interaction while sequence is playing
+                  pointerEvents: inputLocked ? "none" : "auto", //Disable interaction while sequence is playing
                 }}
-                //only let user click the button if the sequence is not playing
-                // disabled={sequencePlaying}
                 onClick={() => {
                   // Handle button click
                   console.log(`Button ${button.text} clicked`);

@@ -14,6 +14,7 @@ import { getRandomInt, playSound } from "../utils/gameLogicHelpers";
   - remove redundancy between reset game and start game.
   - update the round number before the sequence plays so the user can see what round they are on.
   - alter code so game starts immediately after session is created.
+  - force playSequence to stop immediately after reset.
  */
 
 
@@ -60,7 +61,9 @@ const GameBoard = () => {
 
 
   const handleCreateSession = async () => {
+    console.log("---------------------")
     console.log("running handleCreateSession");
+    console.log("---------------------\n")
     try{
       const { data } = await createGameSession({variables: { score: 0 } }); 
 
@@ -83,7 +86,9 @@ const GameBoard = () => {
 
   //create function that resets states between games
   const resetGame = async () => {
+    console.log("---------------------")
     console.log("running resetGame");
+    console.log("---------------------\n")
 
     setGameStarted(false);
 
@@ -110,8 +115,10 @@ const GameBoard = () => {
 
 //startGame seems to be redundant.
   const startGame = () => {
+    console.log("---------------------");
     console.log("running startGame");
-  
+    console.log("---------------------\n");
+    
     setGameStarted(true);
     setIsLoading(true);
     setSequencePlaying(false);
@@ -146,7 +153,9 @@ const GameBoard = () => {
   // }
 
   const playSequence = () => {
-    console.log("running playSequence");
+    console.log("---------------------")
+    console.log("playSequence STARTED");
+    console.log("---------------------\n")
   
     const randomInt = getRandomInt(1, 4);
     const nextButton = boardOneButtons.find((b) => b.id === randomInt);
@@ -185,11 +194,17 @@ const GameBoard = () => {
       setSequencePlaying(false);
       setUserSequence([]);
       setRound((prev) => prev + 1);
+      console.log("---------------------")
+      console.log("playSequence FINISHED");
+      console.log("---------------------\n")
     }, totalTime + 100);
+
   };
   
   const handlePlayerInput = (buttonId: string) => {
+    console.log("---------------------");
     console.log("running handlePlayerInput");
+    console.log("---------------------\n");
   
     //Don't allow input if sequence is still playing or user has already completed their inputs
     if (sequencePlaying) {
@@ -216,7 +231,7 @@ const GameBoard = () => {
     // Show feedback (sound & highlight)
     playSound(button.sound);
     setActiveButton(button.text);
-    setTimeout(() => setActiveButton(null), 300);
+    setTimeout(() => setActiveButton(null), 1000);
   
     if (!isCorrect) {
       console.log("INCORRECT");
@@ -238,8 +253,8 @@ const GameBoard = () => {
       }, 1000);
     }
   
-    console.log("User Sequence: ", updatedUserSequence);
-    console.log("Game Sequence: ", gameSequence);
+    //console.log("User Sequence: ", updatedUserSequence);
+    //console.log("Game Sequence: ", gameSequence);
   };
   
   
@@ -257,9 +272,11 @@ const GameBoard = () => {
             {boardOneButtons.map((button) => (
               <button
                 key={button.id}
+                //TODO: I want to set activeButton to the button's id value converted to a string, but I am not sure how to do that.
                 style={{
                   backgroundColor: activeButton === button.text ? button.color[1]: button.color[0],
-                  transition: "background-color 0.3s ease"
+                  transition: "background-color 0.3s ease",
+                  pointerEvents: sequencePlaying ? "none" : "auto", // Disable interaction while sequence is playing
                 }}
                 //only let user click the button if the sequence is not playing
                 // disabled={sequencePlaying}
@@ -277,7 +294,7 @@ const GameBoard = () => {
           <p>User Sequence: {userSequence.join(", ")}</p>
           <br />
           <p>round: {round}</p>
-          <button onClick={playSequence}>{gameStarted ? "Next Round" : "Start Sequence"}</button>
+          <button onClick={playSequence}>Next Round</button>
           <br />
           <button onClick={()=>{resetGame()}}>Reset Game</button>
         </div>

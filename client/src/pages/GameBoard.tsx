@@ -84,36 +84,7 @@ const GameBoard = () => {
     }
   };
 
-  //create function that resets states between games
-  // const resetGame = async () => {
-  //   console.log("---------------------")
-  //   console.log("running resetGame");
-  //   console.log("---------------------\n")
-
-  //   setGameStarted(false);
-
-  //   //??? Not sure if this is needed
-  //   setIsLoading(true);
-
-  //   setSequencePlaying(false);
-
-  //   //reset gameSequence
-  //   setGameSequence([]);
-    
-  //   //reset userSequence
-  //   setUserSequence([]);
-
-  //   //This is just the client-side score variable. It has nothing to do with GameSession score variable at this point in development
-  //   setScore(0);
-
-  //   setRound(0);
-  //   //??? Again, not sure if this is needed
-  //   setIsLoading(false);
-
-  //   setGameStarted(true);
-  // }
-
-//startGame seems to be redundant.
+ 
   const startGame = () => {
     console.log("---------------------");
     console.log("running startGame");

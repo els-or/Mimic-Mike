@@ -85,33 +85,33 @@ const GameBoard = () => {
   };
 
   //create function that resets states between games
-  const resetGame = async () => {
-    console.log("---------------------")
-    console.log("running resetGame");
-    console.log("---------------------\n")
+  // const resetGame = async () => {
+  //   console.log("---------------------")
+  //   console.log("running resetGame");
+  //   console.log("---------------------\n")
 
-    setGameStarted(false);
+  //   setGameStarted(false);
 
-    //??? Not sure if this is needed
-    setIsLoading(true);
+  //   //??? Not sure if this is needed
+  //   setIsLoading(true);
 
-    setSequencePlaying(false);
+  //   setSequencePlaying(false);
 
-    //reset gameSequence
-    setGameSequence([]);
+  //   //reset gameSequence
+  //   setGameSequence([]);
     
-    //reset userSequence
-    setUserSequence([]);
+  //   //reset userSequence
+  //   setUserSequence([]);
 
-    //This is just the client-side score variable. It has nothing to do with GameSession score variable at this point in development
-    setScore(0);
+  //   //This is just the client-side score variable. It has nothing to do with GameSession score variable at this point in development
+  //   setScore(0);
 
-    setRound(0);
+  //   setRound(0);
+  //   //??? Again, not sure if this is needed
+  //   setIsLoading(false);
 
-    setIsLoading(false);
-
-    setGameStarted(true);
-  }
+  //   setGameStarted(true);
+  // }
 
 //startGame seems to be redundant.
   const startGame = () => {
@@ -119,38 +119,24 @@ const GameBoard = () => {
     console.log("running startGame");
     console.log("---------------------\n");
     
-    setGameStarted(true);
     setIsLoading(true);
     setSequencePlaying(false);
     setGameSequence([]);
     setUserSequence([]);
     setScore(0);
     setRound(0);
+    setIsLoading(false);
+
+    //Important: Do this last so the game UI sees a fully initialized state
+    setGameStarted(true);
   };
   
+  useEffect(() => {
+    if(gameStarted){
+      playSequence(); // Start the game sequence when the game starts
+    }
+  }, [gameStarted]); // Only run when gameStarted changes
 
-  //this method will randomly choose a button and trigger an animation after a short delay
-  // const getNextInSequence = () => {
-  //   console.log("running getNextInSequence");
-  //   try{
-  //         //call getRandomInt (from the gameLogicHelpers file) save the result to a variable
-  //         //--- use 1 for the min and 4 for the max as there are 4 buttons.
-  //         const randomInt = getRandomInt(1, 4);
-
-  //         //use the Array find method() to find a button object in the buttonArray that has an id equal in value to the number returned by getRandomInt
-  //         const button = boardOneButtons.find((button) => button.id === randomInt);
-  //         //if the button is found, set the activeButton state to the button's text value and play the sound associated with that button
-  //         if (button) {
-  //             //add it to the gameSequence Array by calling setGameSequence
-  //             setGameSequence((prevSequence) => [...prevSequence, button.text]);
-  //         } else {
-  //             throw new Error("Button not found");
-  //         }
-
-  //   }catch (error) {
-  //       console.error("Error in getNextInSequence:", error);
-  //   }
-  // }
 
   const playSequence = () => {
     console.log("---------------------")
@@ -235,7 +221,7 @@ const GameBoard = () => {
   
     if (!isCorrect) {
       console.log("INCORRECT");
-      resetGame();
+      startGame(); //This will be removed once the game is fully functional
       return;
     }
   
@@ -256,6 +242,8 @@ const GameBoard = () => {
     //console.log("User Sequence: ", updatedUserSequence);
     //console.log("Game Sequence: ", gameSequence);
   };
+
+
   
   
   
@@ -295,8 +283,6 @@ const GameBoard = () => {
           <br />
           <p>round: {round}</p>
           <button onClick={playSequence}>Next Round</button>
-          <br />
-          <button onClick={()=>{resetGame()}}>Reset Game</button>
         </div>
     </div>
     ) : 
@@ -308,7 +294,7 @@ const GameBoard = () => {
           ) : (
             <>
               <p>Game session created with ID: {gameSession._id}</p>
-              <button onClick={startGame}>Start Game</button>
+              <button onClick={() => startGame()}>Start Game</button>
             </>
           )}
           {loading && <p>Loading...</p>}

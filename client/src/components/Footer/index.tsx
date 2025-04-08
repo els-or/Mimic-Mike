@@ -1,40 +1,52 @@
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from "react-router-dom";
+import "./Footer.css"; // We'll create this file next
 
 const Footer: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
   const handleGoBack = () => {
-    if(window.history.length > 1) { //Check if there is a previous page in the history stack
+    if (window.history.length > 1) {
       navigate(-1);
     } else {
-      navigate('/');
+      navigate("/");
     }
-  }
+  };
+
+  const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="w-100 mt-auto bg-secondary p-4">
-      <div className="container text-center mb-5">
-        {location.pathname !== '/' && (
+    <footer className="footer-container">
+      <div className="footer-content">
+        {location.pathname !== "/" && (
           <button
-            className="btn btn-dark mb-3"
+            className="back-button"
             onClick={handleGoBack}
+            aria-label="Go back to previous page"
           >
-            &larr; Go Back
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M15 18L9 12L15 6"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+            <span>Back</span>
           </button>
         )}
-        <h4>
-          Made with{' '}
-          <span
-            className="emoji"
-            role="img"
-            aria-label="heart"
-            aria-hidden="false"
-          >
-            ❤️
-          </span>{' '}
-          by the Tech Thoughts team.
-        </h4>
+        <div className="footer-text">
+          <span className="copyright">© {currentYear} Mimic Mike</span>
+          <span className="divider">|</span>
+          <span className="credit">Made by the Dream Team</span>
+        </div>
       </div>
     </footer>
   );

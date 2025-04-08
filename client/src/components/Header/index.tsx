@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { type MouseEvent } from "react";
 import { Link } from "react-router-dom";
 import Auth from "../../utils/auth";
 import "./Header.css";
@@ -6,7 +7,9 @@ import "./Header.css";
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  const logout = (event:any) => {
+
+  const logout = (event: MouseEvent<HTMLButtonElement>) => {
+
     event.preventDefault();
     Auth.logout();
   };

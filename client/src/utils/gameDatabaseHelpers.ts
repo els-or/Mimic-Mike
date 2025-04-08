@@ -1,7 +1,7 @@
 import { ApolloClient } from "@apollo/client";
 import { CREATE_GAME_SESSION, UPDATE_USER } from "../utils/mutations";
 import { GameSession } from "../interfaces/GameSession";
-//import { UserData } from "../interfaces/UserData";
+import { UserData } from "../interfaces/UserData";
 
 
 //TODO: consider returning the session data and then setting the score in GameBoard.tsx
@@ -24,7 +24,7 @@ export async function createGameSession(
         }
 }
 
-export async function updateUserScore(client: ApolloClient<any>, gameSession: GameSession): Promise<void>{
+export async function updateUserScore(client: ApolloClient<any>, gameSession: GameSession): Promise<UserData | null>{
     try{
         console.log("CLIENT = ", client);
         console.log("GAME SESSION = ", gameSession);
@@ -33,20 +33,18 @@ export async function updateUserScore(client: ApolloClient<any>, gameSession: Ga
         const { data } = await client.mutate({
             mutation: UPDATE_USER,
             variables: {
+                _id: gameSession.player._id,  // This is the player ID
                 input: {
-                    _id: gameSession._id,
-                    player: {
-                        _id: gameSession.player._id
-                    },
-                    score: gameSession.score,
+                    score: gameSession.score,  // Score from the game session
                 },
             },
         });
 
-        return data.updateUser
+        //Return the updated user or null if no user is returned
+        return data.updateUser || null;
 
     }catch(error){
-        console.error("Unable to update user information");
-        //handle error as needed
+        console.error("Failed to update user:", error);
+        return null; // Return null on failure to update the user
     }
 }

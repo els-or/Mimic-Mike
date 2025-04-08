@@ -20,6 +20,7 @@ import GameOverScreen from "../components/Game/GameOverScreen";
   - consider changing conditional checks with buttons to use button.id for comparison instead of button.text
   - update the round number before the sequence plays so the user can see what round they are on.
   -add loading spinner
+  -make sure game session is terminated if user leaves the page via a navbar button
  */
 
 

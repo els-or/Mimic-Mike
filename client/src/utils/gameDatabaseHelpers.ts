@@ -6,13 +6,20 @@ import { GameSession } from "../interfaces/GameSession";
 //TODO: consider returning the session data and then setting the score in GameBoard.tsx
 
 //#region CREATE GAME SESSION
-export async function createGameSession(client: ApolloClient<any>, initialScore: number = 0): Promise<GameSession> {
-    const { data } = await client.mutate({
-        mutation: CREATE_GAME_SESSION,
-        variables: { score: initialScore},
-    });
-
-    return data.createGameSession as GameSession;
+export async function createGameSession(client: ApolloClient<any>, initialScore: number = 0): Promise<GameSession | null>{
+    try{
+            const { data } = await client.mutate({
+            mutation: CREATE_GAME_SESSION,
+            variables: { score: initialScore},
+            });
+    
+            return data.createGameSession as GameSession;
+            
+    }catch(error){
+        console.error("Failed to create game session:", error);
+        //Return null or handle error as needed
+        return null; 
+    }
 }
 //Christian's code
  // const [createGameSession, { data, loading, error }] =

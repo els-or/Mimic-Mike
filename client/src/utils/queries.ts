@@ -22,14 +22,12 @@ export const QUERY_GAME_SESSION = gql`
   }
 `;
 
-export const QUERY_GAME_SESSIONS = gql`
-  query getGameSessions {
-    gameSessions {
+export const QUERY_USERS_HIGH_SCORES = gql`
+  query getUsersHighScores {
+    users {
       _id
-      player {
-        username
-      }
-      score
+      username
+      highScore
     }
   }
 `;

@@ -38,7 +38,6 @@ const typeDefs = `
     users: [User]
     me: User
     gameSession(_id: ID!): GameSession
-    gameSessions: [GameSession]
   }
 
   type Mutation {

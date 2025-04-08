@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 //Utility files
-import { createGameSession } from "../utils/gameDatabaseHelpers";
+import { createGameSession, updateUserScore } from "../utils/gameDatabaseHelpers";
 import { boardOneButtons } from "../utils/buttonArray";
 import { getRandomInt, playSound } from "../utils/gameLogicHelpers";
 
@@ -64,6 +64,7 @@ const GameBoard = () => {
 //#region Create Game Session
 
   const client = useApolloClient();
+  const userId = gameSession?.player._id;
 
   useEffect(() => {
     console.log("---------------------------");
@@ -139,20 +140,50 @@ const GameBoard = () => {
 //#region Game Over Functions
   const handlePlayAgain = async() => {
     console.log("playing again")
-    //TODO: Update user 
-    //TODO: call a mutator to end the current game session
-      // Create a new game session
+    //make sure user ID is present. It should be impossible for it to not be, but just in case (and to appease TypeScript, I'll double check it)
+    if(!userId){
+      console.error("User in not logged in. Cannot update score.");
+      navigate("/login");
+      return; //TODO: check this. I don't think this would be reachable
+    }
+
+    if(!gameSession){
+      console.error("No game session found");
+      return;
+    }
+
+      //Update the user with the current score from the game session (if it exceeds the user's high score)
+      //Pass the entire game session
+      await updateUserScore(client, gameSession); 
+
+      //TODO: call a mutator to end the current game session
+
+      //Create a new game session
       const session = await createGameSession(client);
       setGameSession(session); // Store the new session
   };
 
   const handleQuitGame = async() => {
-    //TODO: update user
-    //TODO: call a mutator to end the current game session
     console.log("game over, returning to home page");
-    navigate("/");
-    
 
+    //make sure user ID is present. It should be impossible for it to not be, but just in case (and to appease TypeScript, I'll double check it)
+    if(!userId){
+      console.error("User in not logged in. Cannot update score.");
+      navigate("/login");
+      return; //TODO: check this. I don't think this would be reachable
+    }
+
+    if(!gameSession){
+      console.error("No game session found");
+      return;
+    }
+
+      //Update the user with the current score from the game session (if it exceeds the user's high score)
+      //Pass the entire game session
+      await updateUserScore(client, gameSession); 
+
+      //TODO: call a mutator to end the current game session
+      navigate("/");  
   }
 //#endregion Game Over Functions
 

@@ -45,33 +45,6 @@ const Home = () => {
     }
   }, [userData]);
 
-  // const handleCreateSession = async () => {
-  //   try {
-  //     const { data } = await createGameSession({ variables: { score: 0 } });
-  //     setGameSession(data.createGameSession);
-  //     setScore(data.createGameSession.score);
-  //   } catch (error) {
-  //     console.error("Error creating game session:", error);
-  //   }
-  // };
-
-  // const handleUpdateUser = async (score: number) => {
-  //   try {
-  //     const { data } = await updateUser({
-  //       variables: {
-  //         _id: gameSession?.player._id,
-  //         input: {
-  //           _id: gameSession?._id,
-  //           player: { _id: gameSession?.player._id },
-  //           score: score,
-  //         },
-  //       },
-  //     });
-  //   } catch (error) {
-  //     console.error("Error updating user:", error);
-  //   }
-  // };
-
   // Generate placement badges for leaderboard
   const getPlacementBadge = (index: number) => {
     switch (index) {

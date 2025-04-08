@@ -21,12 +21,7 @@
     "@types/prop-types": "^15.7.14",
     "@types/react": "^19.1.0",
     "@types/react-dom": "^19.1.1",
-    "@typescript-eslint/eslint-plugin": "^8.29.0",
-    "@typescript-eslint/parser": "^8.29.0",
     "@vitejs/plugin-react": "^4.2.1",
-    "eslint": "^9.23.0",
-    "eslint-plugin-react-hooks": "^5.2.0",
-    "eslint-plugin-react-refresh": "^0.4.6",
     "typescript": "^5.2.2",
     "vite": "^6.2.4"
   }

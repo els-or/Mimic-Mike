@@ -1,29 +1,24 @@
 import { useMutation } from "@apollo/client";
 import { CREATE_GAME_SESSION } from "../utils/mutations";
-import { use, useEffect, useState } from "react";
-//import PropTypes from "prop-types";
+import { useEffect, useState } from "react";
+
 import { boardOneButtons } from "../utils/buttonArray";
 import { getRandomInt, playSound } from "../utils/gameLogicHelpers";
 import GameOverScreen from "../components/Game/GameOverScreen";
 
 /* **********TODOS**********
   - clean up code
-  - read AI coding suggestions
   - try to find uniform test sounds 
-  - configure the code to prevent user from clicking while game is playing
   - consider changing conditional checks with buttons to use button.id for comparison instead of button.text
-  - remove redundancy between reset game and start game.
   - update the round number before the sequence plays so the user can see what round they are on.
-  - alter code so game starts immediately after session is created.
-  - force playSequence to stop immediately after reset.
  */
 
 
 const GameBoard = () => {
 
-  //!!! data is being used so its value should not be unread
-  const [createGameSession, { data, loading, error }] = useMutation(CREATE_GAME_SESSION);
+  const [createGameSession, { loading, error }] = useMutation(CREATE_GAME_SESSION);
 
+//#region State Variables
   //State to store the game session data
   const [gameSession, setGameSession] = useState<{
     _id: string;
@@ -52,21 +47,22 @@ const GameBoard = () => {
   //State to block user input while the sequence is playing
   const [inputLocked, setInputLocked] = useState<boolean>(false);
 
-
   //State to check if the game is loading
-  //TODO: verify if this is neccessary
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   //State to designate which button is currently active (used for sound and styling for color/animation)
  const [activeButton, setActiveButton] = useState<string | null>(null);
 
+//#endregion State Variables
 
- const [gameReady, setGameReady] = useState(false);
+//#region Create Game Session
+
   //FOR DEBUGGING GAME SESSIONS
   //console.log("Session ID:", gameSession?._id); //Log the session ID for debugging
   //console.log("Data:", data); //Log the data for debugging
 
 
+  //TODO: remove this and use the code from Home instead.
   const handleCreateSession = async () => {
     console.log("---------------------")
     console.log("running handleCreateSession");
@@ -91,7 +87,9 @@ const GameBoard = () => {
     }
   };
 
- 
+//#endregion Create Game Session
+
+//#region Game Start/Reset Functions
   const startOrResetGame = () => {
     console.log("---------------------");
     console.log("running startOrResetGame");
@@ -126,6 +124,9 @@ const GameBoard = () => {
     }
   }, [isLoading, gameStarted]);
 
+//#endregion Game Start/Reset Functions
+
+//#region Game Over Functions
   const handlePlayAgain = () => {
     console.log("playing again")
     //TODO: Add code here to handle any changes that need to be made to the database session
@@ -137,7 +138,9 @@ const GameBoard = () => {
     //This reloads the current page
     window.location.reload(); 
   }
+//#endregion Game Over Functions
 
+//#region CPU Game Sequence Function
   const playSequence = () => {
     console.log("---------------------")
     console.log("playSequence STARTED");
@@ -162,16 +165,15 @@ const GameBoard = () => {
   
       // Light up the button and play the sound
       setTimeout(() => {
-        //console.log(`Step ${index + 1}: ${button.text}`);
         console.log(`Seq ${index}: Playing ${button.sound} for button ${button.text}`); // Log the button text for debugging
         playSound(button.sound);
         setActiveButton(button.text);
       }, onTime);
   
-      // Turn off the button after a short delay
+      //Turn off the button after a short delay
       setTimeout(() => {
         setActiveButton(null);
-      }, onTime + 600); // 600ms on, 400ms off before next
+      }, onTime + 600); //600ms on, 400ms off before next
     });
   
     // End of sequence — re-enable player input
@@ -188,7 +190,9 @@ const GameBoard = () => {
     }, totalTime + 100);
 
   };
-  
+//#endregion CPU Game Sequence Function
+
+//#region Player Input Function
   const handlePlayerInput = (buttonId: string) => {
     console.log("---------------------");
     console.log("running handlePlayerInput");
@@ -237,21 +241,17 @@ const GameBoard = () => {
     //If this was the final correct input for the round
     if (updatedUserSequence.length === gameSequence.length) {
       console.log("Round complete!");
-      // Optionally delay next round so it's not too abrupt
       setTimeout(() => {
-        setScore((prev) => prev + 1); // Increment score
-        setUserSequence([]); // reset input for the new round
-        playSequence();      // begin next round
+        setScore((prev) => prev + 1); //Increment score
+        setUserSequence([]); //reset input for the new round
+        playSequence();      //begin next round
       }, 1000);
     }
-  
-    //console.log("User Sequence: ", updatedUserSequence);
-    //console.log("Game Sequence: ", gameSequence);
   };
+//#endregion Player Input Function
 
   return (
     <div>
-      {/* Show Game Over Modal if game is over */}
       {gameOver && <GameOverScreen score={score} onPlayAgain={handlePlayAgain} onQuit={handleQuitGame} />}
 
       {gameStarted ? (
@@ -298,73 +298,7 @@ const GameBoard = () => {
       )}
     </div>
   );
-  // return (
-  //   <div>
-  //   {gameStarted ? (
-  //       <div>
-  //       <h1>Game Session ID: {gameSession?._id}</h1>
-  //       <p>Player ID: {gameSession?.player._id}</p>
-  //       <p>Score: {score}</p>
-  //       {/* Add your game logic here */}
-  //       <div className="game-board">
-  //           {boardOneButtons.map((button) => (
-  //             <button
-  //               key={button.id}
-  //               //TODO: I want to set activeButton to the button's id value converted to a string, but I am not sure how to do that.
-  //               style={{
-  //                 backgroundColor: activeButton === button.text ? button.color[1]: button.color[0],
-  //                 transition: "background-color 0.3s ease",
-  //                 pointerEvents: inputLocked ? "none" : "auto", //Disable interaction while sequence is playing
-  //               }}
-  //               onClick={() => {
-  //                 // Handle button click
-  //                 console.log(`Button ${button.text} clicked`);
-  //                 handlePlayerInput(button.id.toString());
-  //               }}  
-  //             >
-  //               {button.text}
-  //             </button>
-  //           ))}
-  //         {/*make a button to simulate moving on to the next round so the sequence can be tested.*/}
-  //         <p>Game Sequence: {gameSequence.join(", ")}</p>
-  //         <p>User Sequence: {userSequence.join(", ")}</p>
-  //         <br />
-  //         <p>round: {round}</p>
-  //         <button onClick={playSequence}>Next Round</button>
-  //       </div>
-  //   </div>
-  //   ) : 
-  //   (
-  //     <div>
-  //         <h1>Welcome to the Game!</h1>
-  //         {!gameSession ? (
-  //           <button onClick={handleCreateSession}>Create Game Session</button>
-  //         ) : (
-  //           <>
-  //             <p>Game session created with ID: {gameSession._id}</p>
-  //             <button onClick={() => startOrResetGame()}>Start Game</button>
-  //           </>
-  //         )}
-  //         {loading && <p>Loading...</p>}
-  //         {error && <p>Error: {error.message}</p>}
-  //       </div>
-  //   )}
-
-  //   </div>
-  // );
-
-
 }
 
-// GameBoard.propTypes = {
-//   boardOneButtons: PropTypes.arrayOf(
-//     PropTypes.shape({
-//       id: PropTypes.number.isRequired,
-//       text: PropTypes.string.isRequired,
-//       color: PropTypes.string.isRequired,
-//       sound: PropTypes.string.isRequired,
-//     })
-//   ).isRequired,
-// };
 
 export default GameBoard;

@@ -1,39 +1,23 @@
-import { useState } from "react";
+
 import { Navigate, useParams, Link } from "react-router-dom";
-import { useQuery, useMutation } from "@apollo/client";
 import { QUERY_USERS, QUERY_ME } from "../utils/queries";
-import { CREATE_GAME_SESSION } from "../utils/mutations";
+import { useQuery } from "@apollo/client";
 import Auth from "../utils/auth";
 import "../styles/Profile.css";
 
 const Profile = () => {
   const { username: userParam } = useParams();
-  const [gameStarted, setGameStarted] = useState(false);
-
-  // For creating a game session
-  const [createGameSession] = useMutation(CREATE_GAME_SESSION);
 
   const { loading, data } = useQuery(userParam ? QUERY_USERS : QUERY_ME, {
     variables: { username: userParam },
   });
-
+  
   const user = data?.me || data?.user || {};
 
   // Redirect if logged in and trying to access their own profile page
   if (Auth.loggedIn() && Auth.getProfile().data.username === userParam) {
     return <Navigate to="/me" />;
   }
-
-  const startGame = async () => {
-    try {
-      const { data } = await createGameSession({ variables: { score: 0 } });
-      console.log("Game session created:", data);
-      setGameStarted(true);
-      window.location.assign("/game");
-    } catch (error) {
-      console.error("Error creating game session:", error);
-    }
-  };
 
   if (loading) {
     return (
@@ -109,12 +93,6 @@ const Profile = () => {
                   </div>
                 )}
               </div>
-
-              {!userParam && (
-                <button className="play-now-btn" onClick={startGame}>
-                  Play Now
-                </button>
-              )}
             </div>
           </div>
         </div>

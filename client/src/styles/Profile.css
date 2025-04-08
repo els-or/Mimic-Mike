@@ -1,0 +1,155 @@
+.profile-page {
+  width: 100%;
+  min-height: calc(100vh - 120px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.profile-container {
+  background-color: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  border-radius: 35px;
+  padding: 2.5rem;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  max-width: 750px;
+  width: 90%;
+  margin: 2rem auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.profile-header {
+  margin-bottom: 2rem;
+  width: 100%;
+}
+
+.profile-title {
+  font-size: 2.5rem;
+  margin-bottom: 0.5rem;
+  color: #1a2a6c;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.profile-subtitle {
+  color: #b21f1f;
+  font-size: 1.2rem;
+  font-weight: 500;
+}
+
+.profile-content {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.stats-card {
+  background-color: rgba(255, 255, 255, 0.8);
+  border-radius: 15px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 500px;
+  margin-bottom: 2rem;
+}
+
+.stats-title {
+  font-size: 1.5rem;
+  color: #1a2a6c;
+  margin-bottom: 1.5rem;
+  position: relative;
+  padding-bottom: 0.5rem;
+}
+
+.stats-title::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80px;
+  height: 2px;
+  background: linear-gradient(135deg, #1a2a6c, #b21f1f);
+}
+
+.stat-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.stat-row:last-child {
+  border-bottom: none;
+}
+
+.stat-label {
+  font-weight: 600;
+  color: #333;
+}
+
+.stat-value {
+  font-weight: 700;
+  color: #b21f1f;
+  font-size: 1.2rem;
+  background: -webkit-linear-gradient(135deg, #1a2a6c, #b21f1f);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.not-logged-in {
+  text-align: center;
+  padding: 2rem;
+}
+
+.not-logged-in h2 {
+  color: #1a2a6c;
+  margin-bottom: 1rem;
+}
+
+.not-logged-in p {
+  margin-bottom: 1.5rem;
+}
+
+.auth-links {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+@media (max-width: 768px) {
+  .profile-container {
+    padding: 2rem 1.5rem;
+  }
+
+  .profile-title {
+    font-size: 2rem;
+  }
+
+  .stats-card {
+    padding: 1.25rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .profile-container {
+    width: 95%;
+    padding: 1.5rem 1.2rem;
+  }
+
+  .profile-title {
+    font-size: 1.75rem;
+  }
+
+  .stat-row {
+    flex-direction: column;
+    text-align: center;
+    gap: 0.5rem;
+  }
+}

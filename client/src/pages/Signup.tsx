@@ -1,16 +1,15 @@
-import { useState, type FormEvent, type ChangeEvent } from 'react';
-import { Link } from 'react-router-dom';
-
-import { useMutation } from '@apollo/client';
-import { ADD_USER } from '../utils/mutations';
-
-import Auth from '../utils/auth';
+import { useState, type FormEvent, type ChangeEvent } from "react";
+import { Link } from "react-router-dom";
+import { useMutation } from "@apollo/client";
+import { ADD_USER } from "../utils/mutations";
+import Auth from "../utils/auth";
+import "../styles/Login.css"; // Reusing the login styles
 
 const Signup = () => {
   const [formState, setFormState] = useState({
-    username: '',
-    email: '',
-    password: '',
+    username: "",
+    email: "",
+    password: "",
   });
   const [addUser, { error, data }] = useMutation(ADD_USER);
 
@@ -38,61 +37,66 @@ const Signup = () => {
   };
 
   return (
-    <main className="flex-row justify-center mb-4">
-      <div className="col-12 col-lg-10">
-        <div className="card">
-          <h4 className="card-header bg-dark text-light p-2">Sign Up</h4>
-          <div className="card-body">
+    <>
+      <div className="mimic-mike-home"></div>
+      <div className="content-wrapper">
+        <div className="login-page">
+          <div className="login-container">
             {data ? (
-              <p>
-                Success! You may now head{' '}
-                <Link to="/">back to the homepage.</Link>
-              </p>
+              <div className="success-message">
+                <p>Success! You may now head back to the homepage.</p>
+                <Link to="/">Go to Home</Link>
+              </div>
             ) : (
-              <form onSubmit={handleFormSubmit}>
-                <input
-                  className="form-input"
-                  placeholder="Your username"
-                  name="username"
-                  type="text"
-                  value={formState.username}
-                  onChange={handleChange}
-                />
-                <input
-                  className="form-input"
-                  placeholder="Your email"
-                  name="email"
-                  type="email"
-                  value={formState.email}
-                  onChange={handleChange}
-                />
-                <input
-                  className="form-input"
-                  placeholder="******"
-                  name="password"
-                  type="password"
-                  value={formState.password}
-                  onChange={handleChange}
-                />
-                <button
-                  className="btn btn-block btn-primary"
-                  style={{ cursor: 'pointer' }}
-                  type="submit"
-                >
-                  Submit
-                </button>
-              </form>
+              <>
+                <h2 className="login-title">Sign Up</h2>
+                <form onSubmit={handleFormSubmit}>
+                  <input
+                    className="form-input"
+                    placeholder="Your username"
+                    name="username"
+                    type="text"
+                    value={formState.username}
+                    onChange={handleChange}
+                    required
+                  />
+                  <input
+                    className="form-input"
+                    placeholder="Your email"
+                    name="email"
+                    type="email"
+                    value={formState.email}
+                    onChange={handleChange}
+                    required
+                  />
+                  <input
+                    className="form-input"
+                    placeholder="Your password"
+                    name="password"
+                    type="password"
+                    value={formState.password}
+                    onChange={handleChange}
+                    required
+                    minLength={5}
+                  />
+                  <button className="login-btn" type="submit">
+                    Sign Up
+                  </button>
+                </form>
+                <p>
+                  Already have an account?{" "}
+                  <Link to="/login" className="login-link">
+                    Login here
+                  </Link>
+                </p>
+              </>
             )}
 
-            {error && (
-              <div className="my-3 p-3 bg-danger text-white">
-                {error.message}
-              </div>
-            )}
+            {error && <div className="error-message">{error.message}</div>}
           </div>
         </div>
       </div>
-    </main>
+    </>
   );
 };
 

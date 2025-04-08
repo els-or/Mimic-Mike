@@ -1,78 +1,165 @@
-import { useMutation } from "@apollo/client";
+import { useMutation, useQuery } from "@apollo/client";
 import { CREATE_GAME_SESSION, UPDATE_USER } from "../utils/mutations";
-import { useState } from "react";
+import { QUERY_USERS } from "../utils/queries";
+import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import Auth from "../utils/auth";
+import "../styles/Home.css";
+
+// Define a type for leaderboard entries
+interface LeaderboardEntry {
+  username: string;
+  highScore: number;
+}
 
 const Home = () => {
-  const [createGameSession, { data, loading, error }] = useMutation(CREATE_GAME_SESSION);
+  const [createGameSession, { data, loading, error }] =
+    useMutation(CREATE_GAME_SESSION);
   const [updateUser] = useMutation(UPDATE_USER);
-  // State to store the game session data
   const [gameSession, setGameSession] = useState<{
     _id: string;
     player: { _id: string };
     score: number;
   } | null>(null);
-  const [score, setScore] = useState(0); // Initialize score state
+  const [score, setScore] = useState(0);
+  const [gameStarted, setGameStarted] = useState(false);
+  const [highScore, setHighScore] = useState(0);
+  const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
 
+  // Fetch all users for the leaderboard
+  const { data: userData, loading: leaderboardLoading } = useQuery(QUERY_USERS);
 
+  useEffect(() => {
+    const savedHighScore = localStorage.getItem("mimic-mike-highscore");
+    if (savedHighScore) {
+      setHighScore(parseInt(savedHighScore));
+    }
+  }, []);
 
-  console.log("Session ID:", gameSession?._id); // Log the session ID for debugging
-  console.log("Data:", data); // Log the data for debugging
+  useEffect(() => {
+    document.title = "Mimic Mike";
+  }, []);
 
+  // Process leaderboard data when it arrives
+  useEffect(() => {
+    if (userData && userData.users) {
+      // Sort users by high score (descending)
+      const sortedUsers = [...userData.users]
+        .sort((a, b) => b.highScore - a.highScore)
+        .slice(0, 3); // Get top 3
+
+      setLeaderboard(sortedUsers);
+    }
+  }, [userData]);
 
   const handleCreateSession = async () => {
-    try{
-      const { data } = await createGameSession({variables: { score: 0 } });
-      setGameSession(data.createGameSession); // Set the game session state with the response data
-      console.log("Game session data:", data.createGameSession); // Log the game session data for debugging
-      //update the score state with the initial score from the response
+    try {
+      const { data } = await createGameSession({ variables: { score: 0 } });
+      setGameSession(data.createGameSession);
       setScore(data.createGameSession.score);
-      console.log("Game session created:", data.createGameSession);
-    }catch (error) {
+    } catch (error) {
       console.error("Error creating game session:", error);
     }
   };
 
-  const handleUpdateUser = async (score:number) => {
-    console.log("Updating user with score:", score);
-    console.log("Session ID:", gameSession?._id); // Log the session ID for debugging
-    try { 
+  const handleUpdateUser = async (score: number) => {
+    try {
       const { data } = await updateUser({
         variables: {
-          _id: gameSession?.player._id, // The ID of the user to update
+          _id: gameSession?.player._id,
           input: {
-            _id: gameSession?._id, // The ID of the game session
-            player: { _id: gameSession?.player._id}, // The player object
-            score: score, // The new score
+            _id: gameSession?._id,
+            player: { _id: gameSession?.player._id },
+            score: score,
           },
         },
       });
-      console.log("User updated:", data.updateUser);
-    }
-    catch (error) { 
+    } catch (error) {
       console.error("Error updating user:", error);
     }
-  }
+  };
+
+  // Generate placement badges for leaderboard
+  const getPlacementBadge = (index: number) => {
+    switch (index) {
+      case 0:
+        return <span className="place-badge gold">1st</span>;
+      case 1:
+        return <span className="place-badge silver">2nd</span>;
+      case 2:
+        return <span className="place-badge bronze">3rd</span>;
+      default:
+        return null;
+    }
+  };
 
   return (
-    <div>
-      <h1>Welcome to the Game!</h1>
-      <button onClick={handleCreateSession}>Start New Game Session</button>
-      {loading && <p>Loading...</p>}
-      {error && <p>Error: {error.message}</p>}
-      {data && <p>Game session created with ID: {data.createGameSession._id}</p>}
-      {/* create an input field that allows the user to input a number and includes a button called update score. 
-        Pass the entered score to setScore. Then call handleUpdateUser now that the score is updated*/}
-      <br />
-      <h2>Current Score: {score}</h2>
-      <input type="number" 
-      value={score === 0 ? "" : score} 
-      onChange={(e) => {
-        const value = e.target.value;
-        setScore(value === "" ? 0 : Number(value)); // Allow empty input, but set score to 0 if empty
-      }} />
-      <button onClick={() => handleUpdateUser(score)}>Update Score</button>
-    </div>
-  );
+    <>
+      <div className="mimic-mike-home"></div>
+      <div className="content-wrapper">
+        <div className="home-container">
+          <div className="title-animation">
+            <h1>Mimic Mike</h1>
+            <p className="tagline">Test your memory and mimicry skills!</p>
+          </div>
 
-}
+          <div className="game-info">
+            <p>
+              Follow Mike's patterns and repeat them back correctly to score
+              points.
+            </p>
+            <p>How far can you go?</p>
+          </div>
+
+          <div className="leaderboard-container">
+            <h3 className="leaderboard-title">Top Players</h3>
+            {leaderboardLoading ? (
+              <p>Loading leaderboard...</p>
+            ) : leaderboard.length > 0 ? (
+              <div className="leaderboard-entries">
+                {leaderboard.map((entry, index) => (
+                  <div key={index} className="leaderboard-entry">
+                    {getPlacementBadge(index)}
+                    <div className="entry-details">
+                      <span className="player-name">{entry.username}</span>
+                      <span className="player-score">{entry.highScore}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p>No scores yet. Be the first!</p>
+            )}
+          </div>
+
+          {!Auth.loggedIn() && (
+            <div className="auth-buttons">
+              <Link to="/login" className="login-button">
+                Login
+              </Link>
+              <span>or</span>
+              <Link to="/signup" className="signup-button">
+                Sign Up
+              </Link>
+              <p>to save your scores!</p>
+            </div>
+          )}
+          {Auth.loggedIn() && (
+            <div className="auth-buttons">
+              <Link to="/SinglePlayer" className="login-button">
+                Single-Player
+              </Link>
+              <span>or</span>
+              <Link to="/MultiPlayer" className="signup-button">
+                Multi-Player
+              </Link>
+              <p>Test your skills!</p>
+            </div>
+          )}
+        </div>
+      </div>
+    </>
+  );
+};
+
 export default Home;

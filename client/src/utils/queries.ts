@@ -22,6 +22,16 @@ export const QUERY_GAME_SESSION = gql`
   }
 `;
 
+export const QUERY_USERS_HIGH_SCORES = gql`
+  query getUsersHighScores {
+    users {
+      _id
+      username
+      highScore
+    }
+  }
+`;
+
 export const QUERY_ME = gql`
   query me {
     me {

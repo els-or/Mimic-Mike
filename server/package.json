@@ -21,7 +21,9 @@
     "express": "^4.19.2",
     "graphql": "^16.9.0",
     "jsonwebtoken": "^9.0.2",
-    "mongoose": "^8.4.3"
+    "mongoose": "^8.4.3",
+    "socket-controllers": "^0.0.5",
+    "socket.io": "^4.8.1"
   },
   "devDependencies": {
     "@types/bcrypt": "^5.0.2",

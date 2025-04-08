@@ -5,9 +5,10 @@ import Home from "./pages/Home";
 import Signup from "./pages/Signup";
 import Login from "./pages/Login";
 import ScoreboardPage from "./pages/Scoreboard";
-import Profile from './pages/Profile';
-import ErrorPage from './pages/Error';
-import GameBoard from './pages/GameBoard.js';
+import Profile from "./pages/Profile";
+import ErrorPage from "./pages/Error";
+import GameBoard from "./pages/GameBoard.js";
+import MultiplayerGame from "./pages/MultiplayerGame.js";
 
 const router = createBrowserRouter([
   {
@@ -40,10 +41,14 @@ const router = createBrowserRouter([
         element: <ScoreboardPage />,
       },
       {
-        path: '/game',
-        element: <GameBoard />
-      }
-    ]
+        path: "/game",
+        element: <GameBoard />,
+      },
+      {
+        path: "/MultiPlayer",
+        element: <MultiplayerGame />,
+      },
+    ],
   },
 ]);
 

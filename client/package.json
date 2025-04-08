@@ -11,11 +11,14 @@
   },
   "dependencies": {
     "@apollo/client": "^3.7.14",
+    "@types/socket.io": "^3.0.1",
     "graphql": "^16.6.0",
     "jwt-decode": "^4.0.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
-    "react-router-dom": "^7.4.1"
+    "react-router-dom": "^7.4.1",
+    "socket-io": "^1.0.0",
+    "socket.io-client": "^4.8.1"
   },
   "devDependencies": {
     "@types/prop-types": "^15.7.14",

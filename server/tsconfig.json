@@ -23,7 +23,9 @@
     "exactOptionalPropertyTypes": true /* Interpret optional property types as written, rather than adding 'undefined'. */,
     "noImplicitReturns": true /* Enable error reporting for codepaths that do not explicitly return in a function. */,
     "noImplicitOverride": true /* Ensure overriding members in derived classes are marked with an override modifier. */,
-    "useUnknownInCatchVariables": true /* Ensure 'unknown' is used for catch clause variables. */
+    "useUnknownInCatchVariables": true /* Ensure 'unknown' is used for catch clause variables. */,
+    "experimentalDecorators": true, 
+    "emitDecoratorMetadata": true
   },
   "include": [
     "src"

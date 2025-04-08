@@ -6,7 +6,7 @@ import "./Header.css";
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  const logout = (event) => {
+  const logout = (event:any) => {
     event.preventDefault();
     Auth.logout();
   };
@@ -51,6 +51,7 @@ const Header = () => {
               >
                 Leaderboard
               </Link>
+              
               <button
                 className="logout-btn"
                 onClick={(e) => {

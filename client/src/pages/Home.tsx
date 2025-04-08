@@ -146,7 +146,7 @@ const Home = () => {
           )}
           {Auth.loggedIn() && (
             <div className="auth-buttons">
-              <Link to="/SinglePlayer" className="login-button">
+              <Link to="/game" className="login-button">
                 Single-Player
               </Link>
               <span>or</span>

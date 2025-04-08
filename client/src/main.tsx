@@ -7,6 +7,12 @@ import Login from "./pages/Login";
 import ScoreboardPage from "./pages/Scoreboard";
 import Profile from "./pages/Profile";
 import ErrorPage from "./pages/Error";
+import ReactDOM from 'react-dom/client'
+import { createBrowserRouter, RouterProvider } from 'react-router-dom'
+
+import Profile from './pages/Profile';
+import ErrorPage from './pages/Error';
+import GameBoard from './pages/GameBoard.js';
 
 const router = createBrowserRouter([
   {
@@ -39,6 +45,10 @@ const router = createBrowserRouter([
         element: <ScoreboardPage />,
       },
     ],
+        path: '/game',
+        element: <GameBoard />
+      }
+    ]
   },
 ]);
 

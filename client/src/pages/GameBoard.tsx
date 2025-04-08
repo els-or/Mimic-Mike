@@ -1,5 +1,5 @@
-//GAME SESSION import { useMutation } from "@apollo/client";
-//GAME SESSION: import { CREATE_GAME_SESSION } from "../utils/mutations";
+import { createGameSession } from "../utils/gameDatabaseHelpers";
+import { useApolloClient } from "@apollo/client";
 import { useEffect, useState } from "react";
 
 import { boardOneButtons } from "../utils/buttonArray";
@@ -17,17 +17,7 @@ import GameOverScreen from "../components/Game/GameOverScreen";
 
 const GameBoard = () => {
 
-  //GAME SESSION: const [createGameSession, { loading, error }] = useMutation(CREATE_GAME_SESSION);
-
 //#region State Variables
-  //State to store the game session data
-
-  //GAME SESSION: const [gameSession, setGameSession] = useState<{
-  //   _id: string;
-  //   player: { _id: string };
-  //   score: number;
-  // } | null>(null);
-
   //State to store the game's score (**NOTE: this is not the same as the score that is a part of createGameSession**)
   const [score, setScore] = useState(0); 
 
@@ -58,37 +48,22 @@ const GameBoard = () => {
 //#endregion State Variables
 
 //#region Create Game Session
+
+  const client = useApolloClient();
+
+  useEffect(() => {
+    console.log("---------------------------");
+    console.log("CLIENT USE EFFECT TRIGGERED");
+    console.log("---------------------------\n");
+    //TODO: make sure generateSession is used
+    const generateSession = async () => {
+      const session = await createGameSession(client);
+      console.log('New game session:', session);
+    };
+
+    startOrResetGame();
+  },[client]);
   
-  //FOR DEBUGGING GAME SESSIONS
-  //console.log("Session ID:", gameSession?._id); //Log the session ID for debugging
-  //console.log("Data:", data); //Log the data for debugging
-
-
-  //TODO: remove this and use the code from Home instead.
-  //GAME SESSION: const handleCreateSession = async () => {
-  //   console.log("---------------------")
-  //   console.log("running handleCreateSession");
-  //   console.log("---------------------\n")
-  //   try{
-  //     const { data } = await createGameSession({variables: { score: 0 } }); 
-
-  //     //Set the game session state with the response data
-  //     setGameSession(data.createGameSession);
-
-  //     //Log the game session data for debugging
-  //     console.log("Game session data:", data.createGameSession); 
-
-  //     //update the score state with the initial score from the response
-  //     setScore(data.createGameSession.score);
-
-  //     //Log notification that game session was created.
-  //     console.log("Game session created:", data.createGameSession);
-
-  //   }catch (error) {
-  //     console.error("Error creating game session:", error);
-  //   }
-  // };
-
 //#endregion Create Game Session
 
 //#region Game Start/Reset Functions
@@ -96,23 +71,29 @@ const GameBoard = () => {
     console.log("---------------------");
     console.log("running startOrResetGame");
     console.log("---------------------\n");
+    try{
+        setIsLoading(true);
+        setGameOver(false);
+        setGameSequence([]);
+        setUserSequence([]);
+        setScore(0);
+        setRound(0);
     
-    setIsLoading(true);
-    setGameOver(false);
-    setGameSequence([]);
-    setUserSequence([]);
-    setScore(0);
-    setRound(0);
-
-    setInputLocked(false);
-
-    // Simulate a short delay to ensure all states are reset before proceeding
-    setTimeout(() => {
-      setIsLoading(false); // Mark loading as complete
-      //Important: Do this last so the game UI sees a fully initialized state
-    setGameStarted(true);
-    }, 1000); // Adjust the delay as needed
-
+        setInputLocked(false);
+    
+        // Simulate a short delay to ensure all states are reset before proceeding
+        setTimeout(() => {
+          setIsLoading(false); // Mark loading as complete
+          //Important: Do this last so the game UI sees a fully initialized state
+        setGameStarted(true);
+        }, 1000); // Adjust the delay as needed
+  
+    }catch(error){
+      console.error("Unable to create game session: ", error);
+      //TODO: make an error modal??
+      //TODO: add something here to offer a way to retry creating a game session
+    }
+    
   };
 
   useEffect(() => {
@@ -256,7 +237,9 @@ const GameBoard = () => {
     <div>
       {gameOver && <GameOverScreen score={score} onPlayAgain={handlePlayAgain} onQuit={handleQuitGame} />}
 
-      {gameStarted ? (
+      {isLoading && <p>LOADING...</p>}
+      
+      {gameStarted &&
         <div>
           <p>Score: {score}</p>
           <div className="game-board">
@@ -281,22 +264,7 @@ const GameBoard = () => {
             <button onClick={playSequence}>Next Round</button>
           </div>
         </div>
-      ) : (
-        <div>
-          <button onClick={startOrResetGame}>Start Game</button>
-          {/* GAME SESSION: <h1>Welcome to the Game!</h1>
-          {!gameSession ? (
-            <button onClick={handleCreateSession}>Create Game Session</button>
-          ) : (
-            <>
-              <p>Game session created with ID: {gameSession._id}</p>
-              <button onClick={startOrResetGame}>Start Game</button>
-            </>
-          )}
-          {loading && <p>Loading...</p>}
-          {error && <p>Error: {error.message}</p>} */}
-        </div>
-      )}
+      }
     </div>
   );
 }

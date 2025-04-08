@@ -60,9 +60,6 @@ const Header = () => {
               >
                 Logout
               </button>
-              <Link className="btn btn-lg btn-info m-2" to="/scoreboard">
-                Scoreboard
-              </Link>
             </>
           ) : (
             <>

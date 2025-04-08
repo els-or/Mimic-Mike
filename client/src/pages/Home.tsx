@@ -14,16 +14,7 @@ interface LeaderboardEntry {
 }
 
 const Home = () => {
-  // const [createGameSession, { data, loading, error }] =
-  //   useMutation(CREATE_GAME_SESSION);
-  // const [updateUser] = useMutation(UPDATE_USER);
-  // const [gameSession, setGameSession] = useState<{
-  //   _id: string;
-  //   player: { _id: string };
-  //   score: number;
-  // } | null>(null);
-  // const [score, setScore] = useState(0);
-  // const [gameStarted, setGameStarted] = useState(false);
+ 
   const [highScore, setHighScore] = useState(0);
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
   console.log(highScore); 

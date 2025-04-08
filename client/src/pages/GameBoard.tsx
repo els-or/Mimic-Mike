@@ -1,5 +1,5 @@
-import { useMutation } from "@apollo/client";
-import { CREATE_GAME_SESSION } from "../utils/mutations";
+//GAME SESSION import { useMutation } from "@apollo/client";
+//GAME SESSION: import { CREATE_GAME_SESSION } from "../utils/mutations";
 import { useEffect, useState } from "react";
 
 import { boardOneButtons } from "../utils/buttonArray";
@@ -11,20 +11,22 @@ import GameOverScreen from "../components/Game/GameOverScreen";
   - try to find uniform test sounds 
   - consider changing conditional checks with buttons to use button.id for comparison instead of button.text
   - update the round number before the sequence plays so the user can see what round they are on.
+  -add loading spinner
  */
 
 
 const GameBoard = () => {
 
-  const [createGameSession, { loading, error }] = useMutation(CREATE_GAME_SESSION);
+  //GAME SESSION: const [createGameSession, { loading, error }] = useMutation(CREATE_GAME_SESSION);
 
 //#region State Variables
   //State to store the game session data
-  const [gameSession, setGameSession] = useState<{
-    _id: string;
-    player: { _id: string };
-    score: number;
-  } | null>(null);
+
+  //GAME SESSION: const [gameSession, setGameSession] = useState<{
+  //   _id: string;
+  //   player: { _id: string };
+  //   score: number;
+  // } | null>(null);
 
   //State to store the game's score (**NOTE: this is not the same as the score that is a part of createGameSession**)
   const [score, setScore] = useState(0); 
@@ -56,36 +58,36 @@ const GameBoard = () => {
 //#endregion State Variables
 
 //#region Create Game Session
-
+  
   //FOR DEBUGGING GAME SESSIONS
   //console.log("Session ID:", gameSession?._id); //Log the session ID for debugging
   //console.log("Data:", data); //Log the data for debugging
 
 
   //TODO: remove this and use the code from Home instead.
-  const handleCreateSession = async () => {
-    console.log("---------------------")
-    console.log("running handleCreateSession");
-    console.log("---------------------\n")
-    try{
-      const { data } = await createGameSession({variables: { score: 0 } }); 
+  //GAME SESSION: const handleCreateSession = async () => {
+  //   console.log("---------------------")
+  //   console.log("running handleCreateSession");
+  //   console.log("---------------------\n")
+  //   try{
+  //     const { data } = await createGameSession({variables: { score: 0 } }); 
 
-      //Set the game session state with the response data
-      setGameSession(data.createGameSession);
+  //     //Set the game session state with the response data
+  //     setGameSession(data.createGameSession);
 
-      //Log the game session data for debugging
-      console.log("Game session data:", data.createGameSession); 
+  //     //Log the game session data for debugging
+  //     console.log("Game session data:", data.createGameSession); 
 
-      //update the score state with the initial score from the response
-      setScore(data.createGameSession.score);
+  //     //update the score state with the initial score from the response
+  //     setScore(data.createGameSession.score);
 
-      //Log notification that game session was created.
-      console.log("Game session created:", data.createGameSession);
+  //     //Log notification that game session was created.
+  //     console.log("Game session created:", data.createGameSession);
 
-    }catch (error) {
-      console.error("Error creating game session:", error);
-    }
-  };
+  //   }catch (error) {
+  //     console.error("Error creating game session:", error);
+  //   }
+  // };
 
 //#endregion Create Game Session
 
@@ -256,8 +258,6 @@ const GameBoard = () => {
 
       {gameStarted ? (
         <div>
-          <h1>Game Session ID: {gameSession?._id}</h1>
-          <p>Player ID: {gameSession?.player._id}</p>
           <p>Score: {score}</p>
           <div className="game-board">
             {boardOneButtons.map((button) => (
@@ -283,7 +283,8 @@ const GameBoard = () => {
         </div>
       ) : (
         <div>
-          <h1>Welcome to the Game!</h1>
+          <button onClick={startOrResetGame}>Start Game</button>
+          {/* GAME SESSION: <h1>Welcome to the Game!</h1>
           {!gameSession ? (
             <button onClick={handleCreateSession}>Create Game Session</button>
           ) : (
@@ -293,7 +294,7 @@ const GameBoard = () => {
             </>
           )}
           {loading && <p>Loading...</p>}
-          {error && <p>Error: {error.message}</p>}
+          {error && <p>Error: {error.message}</p>} */}
         </div>
       )}
     </div>

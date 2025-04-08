@@ -1,0 +1,105 @@
+/* Scoreboard specific styles */
+.full-leaderboard {
+  width: 100%;
+  max-width: 650px;
+  padding: 0.5rem;
+}
+
+.full-leaderboard .leaderboard-entries {
+  width: 100%;
+  max-width: 600px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  margin: 0 auto;
+}
+
+.full-leaderboard .leaderboard-entry {
+  margin-bottom: 0.5rem;
+  transition: transform 0.2s ease;
+}
+
+.full-leaderboard .leaderboard-entry:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* Style for rankings beyond top 3 */
+.place-badge:not(.gold):not(.silver):not(.bronze) {
+  background: linear-gradient(135deg, #555, #888);
+  box-shadow: 0 2px 8px rgba(85, 85, 85, 0.4);
+  color: white;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 0.9rem;
+  margin-right: 1rem;
+}
+
+/* State styling */
+.loading-state,
+.error-state,
+.empty-state {
+  background-color: rgba(255, 255, 255, 0.7);
+  border-radius: 10px;
+  padding: 1.5rem;
+  text-align: center;
+  margin: 1rem auto;
+  max-width: 450px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.error-state {
+  border-left: 4px solid #e64c66;
+  color: #e64c66;
+}
+
+.empty-state {
+  border-left: 4px solid #1a2a6c;
+  color: #1a2a6c;
+}
+
+/* Responsive design for scoreboard */
+@media (max-width: 768px) {
+  .full-leaderboard {
+    padding: 0.25rem;
+  }
+
+  .place-badge:not(.gold):not(.silver):not(.bronze) {
+    width: 35px;
+    height: 35px;
+    font-size: 0.8rem;
+    margin-right: 0.75rem;
+  }
+
+  .loading-state,
+  .error-state,
+  .empty-state {
+    padding: 1.25rem;
+    margin: 0.75rem auto;
+  }
+}
+
+@media (max-width: 480px) {
+  .full-leaderboard .leaderboard-entry {
+    padding: 0.6rem 0.8rem;
+  }
+
+  .place-badge:not(.gold):not(.silver):not(.bronze) {
+    width: 30px;
+    height: 30px;
+    font-size: 0.75rem;
+    margin-right: 0.5rem;
+  }
+
+  .loading-state,
+  .error-state,
+  .empty-state {
+    padding: 1rem;
+    font-size: 0.9rem;
+  }
+}

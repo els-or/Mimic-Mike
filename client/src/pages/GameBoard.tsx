@@ -4,6 +4,7 @@ import { use, useEffect, useState } from "react";
 //import PropTypes from "prop-types";
 import { boardOneButtons } from "../utils/buttonArray";
 import { getRandomInt, playSound } from "../utils/gameLogicHelpers";
+import GameOverScreen from "../components/Game/GameOverScreen";
 
 /* **********TODOS**********
   - clean up code
@@ -33,8 +34,11 @@ const GameBoard = () => {
   //State to store the game's score (**NOTE: this is not the same as the score that is a part of createGameSession**)
   const [score, setScore] = useState(0); 
 
-  //State to check if the game has started.
+  //State to track if the game has started.
   const [gameStarted, setGameStarted] = useState(false);
+
+  //State to track if the game is over.
+  const [gameOver, setGameOver] = useState(false);
 
   //State to store the game sequence
   const [gameSequence, setGameSequence] = useState<string[]>([]); 
@@ -56,6 +60,8 @@ const GameBoard = () => {
   //State to designate which button is currently active (used for sound and styling for color/animation)
  const [activeButton, setActiveButton] = useState<string | null>(null);
 
+
+ const [gameReady, setGameReady] = useState(false);
   //FOR DEBUGGING GAME SESSIONS
   //console.log("Session ID:", gameSession?._id); //Log the session ID for debugging
   //console.log("Data:", data); //Log the data for debugging
@@ -86,12 +92,13 @@ const GameBoard = () => {
   };
 
  
-  const startGame = () => {
+  const startOrResetGame = () => {
     console.log("---------------------");
-    console.log("running startGame");
+    console.log("running startOrResetGame");
     console.log("---------------------\n");
     
     setIsLoading(true);
+    setGameOver(false);
     setGameSequence([]);
     setUserSequence([]);
     setScore(0);
@@ -99,18 +106,37 @@ const GameBoard = () => {
 
     setInputLocked(false);
 
-    setIsLoading(false);
-
-    //Important: Do this last so the game UI sees a fully initialized state
+    // Simulate a short delay to ensure all states are reset before proceeding
+    setTimeout(() => {
+      setIsLoading(false); // Mark loading as complete
+      //Important: Do this last so the game UI sees a fully initialized state
     setGameStarted(true);
-  };
-  
-  useEffect(() => {
-    if(gameStarted){
-      playSequence(); // Start the game sequence when the game starts
-    }
-  }, [gameStarted]); // Only run when gameStarted changes
+    }, 1000); // Adjust the delay as needed
 
+  };
+
+  useEffect(() => {
+    console.log("useEffect triggered");
+    console.log("isLoading:", isLoading);
+    console.log("gameStarted:", gameStarted);
+  
+    if (!isLoading && gameStarted) {
+      console.log("All states reset. Starting playSequence...");
+      playSequence();
+    }
+  }, [isLoading, gameStarted]);
+
+  const handlePlayAgain = () => {
+    console.log("playing again")
+    //TODO: Add code here to handle any changes that need to be made to the database session
+    startOrResetGame();
+  };
+
+  const handleQuitGame = () => {
+    //TODO: call a mutator to end the current game session
+    //This reloads the current page
+    window.location.reload(); 
+  }
 
   const playSequence = () => {
     console.log("---------------------")
@@ -198,7 +224,10 @@ const GameBoard = () => {
   
     if (!isCorrect) {
       console.log("INCORRECT");
-      startGame(); //This will be removed once the game is fully functional
+      setInputLocked(true);
+      setTimeout(() => {
+        setGameOver(true);
+      }, 2000); //update this to reflect the sound playback length
       return;
     }
   
@@ -220,65 +249,110 @@ const GameBoard = () => {
     //console.log("Game Sequence: ", gameSequence);
   };
 
-
-  
-  
-  
- 
   return (
     <div>
-    {gameStarted ? (
+      {/* Show Game Over Modal if game is over */}
+      {gameOver && <GameOverScreen score={score} onPlayAgain={handlePlayAgain} onQuit={handleQuitGame} />}
+
+      {gameStarted ? (
         <div>
-        <h1>Game Session ID: {gameSession?._id}</h1>
-        <p>Player ID: {gameSession?.player._id}</p>
-        <p>Score: {score}</p>
-        {/* Add your game logic here */}
-        <div className="game-board">
+          <h1>Game Session ID: {gameSession?._id}</h1>
+          <p>Player ID: {gameSession?.player._id}</p>
+          <p>Score: {score}</p>
+          <div className="game-board">
             {boardOneButtons.map((button) => (
               <button
                 key={button.id}
+                onClick={() => handlePlayerInput(button.id.toString())}
                 //TODO: I want to set activeButton to the button's id value converted to a string, but I am not sure how to do that.
                 style={{
-                  backgroundColor: activeButton === button.text ? button.color[1]: button.color[0],
-                  transition: "background-color 0.3s ease",
-                  pointerEvents: inputLocked ? "none" : "auto", //Disable interaction while sequence is playing
+                    backgroundColor: activeButton === button.text ? button.color[1]: button.color[0],
+                    transition: "background-color 0.3s ease",
+                    pointerEvents: inputLocked ? "none" : "auto", //Disable interaction while sequence is playing
                 }}
-                onClick={() => {
-                  // Handle button click
-                  console.log(`Button ${button.text} clicked`);
-                  handlePlayerInput(button.id.toString());
-                }}  
               >
                 {button.text}
               </button>
             ))}
-          {/*make a button to simulate moving on to the next round so the sequence can be tested.*/}
-          <p>Game Sequence: {gameSequence.join(", ")}</p>
-          <p>User Sequence: {userSequence.join(", ")}</p>
-          <br />
-          <p>round: {round}</p>
-          <button onClick={playSequence}>Next Round</button>
+            <p>Game Sequence: {gameSequence.join(", ")}</p>
+            <p>User Sequence: {userSequence.join(", ")}</p>
+            <br />
+            <p>Round: {round}</p>
+            <button onClick={playSequence}>Next Round</button>
+          </div>
         </div>
-    </div>
-    ) : 
-    (
-      <div>
+      ) : (
+        <div>
           <h1>Welcome to the Game!</h1>
           {!gameSession ? (
             <button onClick={handleCreateSession}>Create Game Session</button>
           ) : (
             <>
               <p>Game session created with ID: {gameSession._id}</p>
-              <button onClick={() => startGame()}>Start Game</button>
+              <button onClick={startOrResetGame}>Start Game</button>
             </>
           )}
           {loading && <p>Loading...</p>}
           {error && <p>Error: {error.message}</p>}
         </div>
-    )}
-
+      )}
     </div>
   );
+  // return (
+  //   <div>
+  //   {gameStarted ? (
+  //       <div>
+  //       <h1>Game Session ID: {gameSession?._id}</h1>
+  //       <p>Player ID: {gameSession?.player._id}</p>
+  //       <p>Score: {score}</p>
+  //       {/* Add your game logic here */}
+  //       <div className="game-board">
+  //           {boardOneButtons.map((button) => (
+  //             <button
+  //               key={button.id}
+  //               //TODO: I want to set activeButton to the button's id value converted to a string, but I am not sure how to do that.
+  //               style={{
+  //                 backgroundColor: activeButton === button.text ? button.color[1]: button.color[0],
+  //                 transition: "background-color 0.3s ease",
+  //                 pointerEvents: inputLocked ? "none" : "auto", //Disable interaction while sequence is playing
+  //               }}
+  //               onClick={() => {
+  //                 // Handle button click
+  //                 console.log(`Button ${button.text} clicked`);
+  //                 handlePlayerInput(button.id.toString());
+  //               }}  
+  //             >
+  //               {button.text}
+  //             </button>
+  //           ))}
+  //         {/*make a button to simulate moving on to the next round so the sequence can be tested.*/}
+  //         <p>Game Sequence: {gameSequence.join(", ")}</p>
+  //         <p>User Sequence: {userSequence.join(", ")}</p>
+  //         <br />
+  //         <p>round: {round}</p>
+  //         <button onClick={playSequence}>Next Round</button>
+  //       </div>
+  //   </div>
+  //   ) : 
+  //   (
+  //     <div>
+  //         <h1>Welcome to the Game!</h1>
+  //         {!gameSession ? (
+  //           <button onClick={handleCreateSession}>Create Game Session</button>
+  //         ) : (
+  //           <>
+  //             <p>Game session created with ID: {gameSession._id}</p>
+  //             <button onClick={() => startOrResetGame()}>Start Game</button>
+  //           </>
+  //         )}
+  //         {loading && <p>Loading...</p>}
+  //         {error && <p>Error: {error.message}</p>}
+  //       </div>
+  //   )}
+
+  //   </div>
+  // );
+
 
 }
 

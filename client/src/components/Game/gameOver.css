@@ -1,0 +1,46 @@
+/*!!! Christian: Feel free to style this as you see fit.*/
+
+.game-over-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.7); /* Dark semi-transparent background */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000; /* Make sure the modal is on top of other content */
+  }
+  
+  .game-over-content {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    width: 300px;
+  }
+  
+  .game-over-content h2 {
+    margin-bottom: 15px;
+  }
+  
+  .modal-actions {
+    display: flex;
+    justify-content: space-around;
+  }
+  
+  .modal-actions button {
+    padding: 10px;
+    margin: 5px;
+    border: none;
+    background-color: #4CAF50;
+    color: white;
+    cursor: pointer;
+    border-radius: 5px;
+  }
+  
+  .modal-actions button:hover {
+    background-color: #45a049;
+  }
+  

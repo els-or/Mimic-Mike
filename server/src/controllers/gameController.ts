@@ -16,7 +16,11 @@ export class GameController {
         if (message.gameStatus.roundEnd) {
             message.gameStatus.newPattern = generatePattern(message.gameStatus.round + 3)
         }
-        io.to(gameSession).emit("on_game_update", message)
+        if (message.gameStatus.roundEnd || message.gameStatus.gameOver) {
+            io.to(gameSession).emit("on_game_update", message)
+        } else {
+            socket.to(gameSession).emit("on_game_update", message)
+        }
     }
 
     @OnMessage("update_session_list")

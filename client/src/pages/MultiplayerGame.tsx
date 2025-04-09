@@ -23,11 +23,13 @@ const MultiplayerGame = () => {
   const [sessionList, setSessionList] = useState<string[]>([]);
 
   const connectSocket = async () => {
-    await socketService
-      .connect("https://mimic-mike.onrender.com")
-      .catch((err) => {
-        console.log("Error: ", err);
-      });
+    let url = "http://localhost:3001";
+    if (import.meta.env.MODE === "production") {
+      url = "https://mimic-mike.onrender.com";
+    }
+    await socketService.connect(url).catch((err) => {
+      console.log("Error: ", err);
+    });
   };
 
   useEffect(() => {

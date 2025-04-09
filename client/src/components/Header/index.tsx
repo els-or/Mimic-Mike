@@ -7,9 +7,7 @@ import "./Header.css";
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-
   const logout = (event: MouseEvent<HTMLButtonElement>) => {
-
     event.preventDefault();
     Auth.logout();
   };
@@ -41,7 +39,7 @@ const Header = () => {
           {Auth.loggedIn() ? (
             <>
               <Link
-                to="/profile"
+                to="/me"
                 className="nav-link"
                 onClick={() => setIsMenuOpen(false)}
               >
@@ -54,7 +52,7 @@ const Header = () => {
               >
                 Leaderboard
               </Link>
-              
+
               <button
                 className="logout-btn"
                 onClick={(e) => {

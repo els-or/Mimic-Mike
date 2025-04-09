@@ -1,6 +1,5 @@
-
 import { Navigate, useParams, Link } from "react-router-dom";
-import { QUERY_USERS, QUERY_ME } from "../utils/queries";
+import { QUERY_ME } from "../utils/queries";
 import { useQuery } from "@apollo/client";
 import Auth from "../utils/auth";
 import "../styles/Profile.css";
@@ -8,11 +7,11 @@ import "../styles/Profile.css";
 const Profile = () => {
   const { username: userParam } = useParams();
 
-  const { loading, data } = useQuery(userParam ? QUERY_USERS : QUERY_ME, {
+  const { loading, data } = useQuery(QUERY_ME, {
     variables: { username: userParam },
   });
-  
-  const user = data?.me || data?.user || {};
+
+  const user = data?.me || {};
 
   // Redirect if logged in and trying to access their own profile page
   if (Auth.loggedIn() && Auth.getProfile().data.username === userParam) {
@@ -67,9 +66,7 @@ const Profile = () => {
         <div className="profile-page">
           <div className="profile-container">
             <div className="profile-header">
-              <h2 className="profile-title">
-                {userParam ? `${user.username}'s Profile` : "Your Profile"}
-              </h2>
+              <h2 className="profile-title">Your Profile</h2>
               <p className="profile-subtitle">
                 {userParam ? "View player stats" : "Welcome back!"}
               </p>
@@ -86,12 +83,6 @@ const Profile = () => {
                   <span className="stat-label">High Score</span>
                   <span className="stat-value">{user.highScore}</span>
                 </div>
-                {user.email && !userParam && (
-                  <div className="stat-row">
-                    <span className="stat-label">Email</span>
-                    <span className="stat-value">{user.email}</span>
-                  </div>
-                )}
               </div>
             </div>
           </div>

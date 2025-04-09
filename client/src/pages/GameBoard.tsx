@@ -123,8 +123,8 @@ const GameBoard = () => {
         setTimeout(() => {
           setIsLoading(false); // Mark loading as complete
           //Important: Do this last so the game UI sees a fully initialized state
-        setGameStarted(true);
-        }, 5000); // Adjust the delay as needed
+          setGameStarted(true);
+        }, 1000); // Adjust the delay as needed
   
     }catch(error){
       console.error("Unable to create game session: ", error);
@@ -139,7 +139,7 @@ const GameBoard = () => {
     if (!isLoading && gameStarted) {
       setTimeout(() => {
           playSequence();
-      }, 3000); 
+      }, 2000); 
       
     }
   }, [isLoading, gameStarted]);

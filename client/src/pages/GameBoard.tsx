@@ -205,26 +205,54 @@ const getHighScore= async(): Promise<boolean | null > => {
     } 
   };
       
-  const handlePlayAgain = async() => {
-      console.log("playing again");
-      //Delete the previous game session
-      if(gameSession){
-        await deleteGameSession(client, gameSession._id);
+  const handlePlayAgain = async () => {
+    console.log("Playing again");
+  
+    if (gameSession) {
+      try {
+        const result = await deleteGameSession(client, gameSession._id);
+        if (result) {
+          console.log("Previous game session deleted.");
+        } else {
+          console.warn("Previous game session deletion returned null.");
+        }
+      } catch (error) {
+        console.error("Error deleting previous game session:", error);
       }
-      //Create a new game session
+    }
+  
+    try {
       const session = await createGameSession(client);
-      setGameSession(session); // Store the new session
-  }
-
-
-  const handleQuitGame = async() => {
-    console.log("game over, returning to home page");
-      //call a mutator to end the current game session
-      if(gameSession){
-        await deleteGameSession(client, gameSession._id);
+      if (session) {
+        setGameSession(session);
+        console.log("New game session started:", session);
+      } else {
+        console.error("Failed to create new game session.");
       }
-      navigate("/");  
-  }
+    } catch (error) {
+      console.error("Error creating new game session:", error);
+    }
+  };
+
+
+  const handleQuitGame = async () => {
+    console.log("Game over, returning to home page");
+  
+    if (gameSession) {
+      try {
+        const result = await deleteGameSession(client, gameSession._id);
+        if (result) {
+          console.log("Game session deleted successfully.");
+        } else {
+          console.warn("Game session deletion returned null.");
+        }
+      } catch (error) {
+        console.error("Error deleting game session:", error);
+      }
+    }
+  
+    navigate("/");
+  };
 //#endregion Game Over Functions
 
 //#region Play Sequence

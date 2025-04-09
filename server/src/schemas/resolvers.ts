@@ -92,6 +92,7 @@ const resolvers = {
     },
 
     updateUser: async (_parent: any, { input }: { input: GameSessionInput }, context: any) => {
+      console.log("*******UPDATE USER TRIGGERED*********  ", context);
       if(context.user) {
           console.log('Updating user with game session:', input);
           console.log('Game session ID:', input._id);
@@ -123,14 +124,16 @@ const resolvers = {
                 console.log('Old high score:', user.highScore);
                 
                 //if score is greater than highscore, update highscore
-                await User.findByIdAndUpdate(
+                const updatedUser = await User.findByIdAndUpdate(
                   { _id: context.user._id },
                   { highScore: input.score },
                   { new: true }
                 );
+
+                return updatedUser; //return the updated user
             }
           }
-          
+          return user; //return the user if no update is needed
       }
       else{
         throw new AuthenticationError('Could not authenticate user.');  

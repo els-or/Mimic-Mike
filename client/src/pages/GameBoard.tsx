@@ -32,11 +32,7 @@ import "../styles/GameBoard.css";
 
 
 const GameBoard = () => {
-  const [createGameSession, { loading, error }] =
-    useMutation(CREATE_GAME_SESSION);
-
-
-  const navigate = useNavigate();
+ const navigate = useNavigate();
 
 //#region State Variables
 
@@ -128,7 +124,7 @@ const GameBoard = () => {
           setIsLoading(false); // Mark loading as complete
           //Important: Do this last so the game UI sees a fully initialized state
         setGameStarted(true);
-        }, 1000); // Adjust the delay as needed
+        }, 5000); // Adjust the delay as needed
   
     }catch(error){
       console.error("Unable to create game session: ", error);
@@ -141,13 +137,16 @@ const GameBoard = () => {
   // Initialize game when ready
   useEffect(() => {
     if (!isLoading && gameStarted) {
-      playSequence();
+      setTimeout(() => {
+          playSequence();
+      }, 3000); 
+      
     }
   }, [isLoading, gameStarted]);
 
 //#endregion Game Start/Reset Functions
 
-//#region Game Over Functions
+//#region Score Functions
 //this updates the user score as well by calling a function that uses the UPDATE_USER mutation
 const getHighScore= async(): Promise<boolean | null > => {
   
@@ -191,30 +190,26 @@ const getHighScore= async(): Promise<boolean | null > => {
     return null;
   }
 }
+//#endreigon High Score Functions
 
+//#region Game Over Functions
   //!!!! IMPORTANT NOTE: handleGameOver is called when the user fails a check inside the handlePlayerInput function
   const handleGameOver = async() => {
     setGameOver(true);
+    //!!!This updates the user
     const newHighScore = await getHighScore(); // Await the result from getHighScore
 
-    // console.log("NEW HIGH SCORE = ", newHighScore);
-    // if (!newHighScore) {
-    //   console.error("Could not determine player's high score");
-    //   return;
-    // }
-  
     // Update the high score message if there is a new high score
     if (newHighScore) {
       setHighScoreMessage("New High Score!"); // Update with the message
     } 
-    else{
-      setHighScoreMessage("Good Try!"); // Alternatively, a default message if no new high score
-    }
+
+    //TODO: call a mutator to end the current game session
   };
       
   const handlePlayAgain = async() => {
       console.log("playing again");
-     //TODO: call a mutator to end the current game session
+     
 
       //Create a new game session
       const session = await createGameSession(client);
@@ -224,11 +219,13 @@ const getHighScore= async(): Promise<boolean | null > => {
 
   const handleQuitGame = async() => {
     console.log("game over, returning to home page");
+
       //TODO: call a mutator to end the current game session
       navigate("/");  
   }
 //#endregion Game Over Functions
 
+//#region Play Sequence
   // CPU game sequence logic
   const playSequence = () => {
     const randomInt = getRandomInt(1, 4);
@@ -241,6 +238,7 @@ const getHighScore= async(): Promise<boolean | null > => {
     const newSequence = [...gameSequence, nextButton.id.toString()];
     setGameSequence(newSequence);
     setInputLocked(true);
+    setRound((prev) => prev + 1);
 
     newSequence.forEach((buttonId, index) => {
       const button = boardOneButtons.find((b) => b.id.toString() === buttonId);
@@ -250,7 +248,7 @@ const getHighScore= async(): Promise<boolean | null > => {
 
       // Light up the button and play the sound
       setTimeout(() => {
-        playSound(button.sound, 0.25); // 25% volume
+        playSound(button.sound);
         setActiveButton(button.text);
       }, onTime);
 
@@ -265,10 +263,11 @@ const getHighScore= async(): Promise<boolean | null > => {
     setTimeout(() => {
       setInputLocked(false);
       setUserSequence([]);
-      setRound((prev) => prev + 1);
     }, totalTime + 100);
   };
+//#endregion Play Sequence
 
+//#region Player Input
   // Player input handler
   const handlePlayerInput = (buttonId: string) => {
     if (inputLocked || userSequence.length >= gameSequence.length) {
@@ -289,7 +288,7 @@ const getHighScore= async(): Promise<boolean | null > => {
       updatedUserSequence[currentIndex] === gameSequence[currentIndex];
 
     // Show feedback
-    playSound(button.sound, 0.25); // 25% volume
+    playSound(button.sound);
     setActiveButton(button.text);
     setTimeout(() => setActiveButton(null), 400);
 
@@ -311,51 +310,54 @@ const getHighScore= async(): Promise<boolean | null > => {
       }, 1000);
     }
   };
+//#endregion Player Input
 
+//#region Return TSX
   return (
     <>
       <div className="mimic-mike-home"></div>
-      <div className="content-wrapper">
-        {gameOver && (
-          <GameOverScreen
-            score={score}
-            onPlayAgain={handlePlayAgain}
-            onQuit={handleQuitGame}
-          />
-        )}
+        <div className="content-wrapper">
+          {gameOver && (
+            <GameOverScreen
+              score={score}
+              highScoreMessage={highScoreMessage} 
+              onPlayAgain={handlePlayAgain}
+              onQuit={handleQuitGame}
+            />
+          )};
 
-        {gameStarted ? (
-          <div className="game-container">
-            <div className="game-header">
-              <h1>Round {round}</h1>
-              <p className="game-score">Score: {score}</p>
-            </div>
-
-            <div className="simon-container">
-              {boardOneButtons.map((button) => (
-                <div
-                  key={button.id}
-                  className={`simon-button simon-${button.text.toLowerCase()} ${
-                    activeButton === button.text ? "active" : ""
-                  }`}
-                  onClick={() => handlePlayerInput(button.id.toString())}
-                  style={{
-                    pointerEvents: inputLocked ? "none" : "auto",
-                  }}
-                >
-                  <div className="button-inner">{button.text}</div>
-                </div>
-              ))}
-              <div className="simon-center">
-                <div className="round-display">{round}</div>
+          {gameStarted ? (
+            <div className="game-container">
+              <div className="game-header">
+                <h1>Round {round}</h1>
+                <p className="game-score">Score: {score}</p>
               </div>
-            </div>
 
-            <div className="game-controls">
-              <button className="secondary-button" onClick={handleQuitGame}>
-                Quit Game
-              </button>
-            </div>
+              <div className="simon-container">
+                {boardOneButtons.map((button) => (
+                  <div
+                    key={button.id}
+                    className={`simon-button simon-${button.text.toLowerCase()} ${
+                      activeButton === button.text ? "active" : ""
+                    }`}
+                    onClick={() => handlePlayerInput(button.id.toString())}
+                    style={{
+                      pointerEvents: inputLocked ? "none" : "auto",
+                    }}
+                  >
+                      <div className="button-inner">{button.text}</div>
+                  </div>
+                ))}
+                <div className="simon-center">
+                    <div className="round-display">{round}</div>
+                </div>
+              </div>
+
+              <div className="game-controls">
+                  <button className="secondary-button" onClick={handleQuitGame}>
+                    Quit Game
+                  </button>
+              </div>
           </div>
         ) : (
           <div className="home-container">
@@ -371,10 +373,12 @@ const getHighScore= async(): Promise<boolean | null > => {
               </p>
               <p>How many rounds can you go?</p>
             </div>
+        </div>
+        )};
       </div>
     </>
-
   );
+//#enregion Return TSX
 };
 
 export default GameBoard;

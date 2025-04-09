@@ -3,12 +3,14 @@ import "./GameOver.css";
 
 interface GameOverScreenProps {
   score: number;
+  highScoreMessage: string;
   onPlayAgain: () => void;
   onQuit: () => void;
 }
 
 const GameOverScreen: React.FC<GameOverScreenProps> = ({
   score,
+  highScoreMessage,
   onPlayAgain,
   onQuit,
 }) => {
@@ -18,6 +20,7 @@ const GameOverScreen: React.FC<GameOverScreenProps> = ({
         <h2>Game Over</h2>
         <p className="final-score">
           Your Score: <span>{score}</span>
+          <p>{highScoreMessage}</p>
         </p>
         <p className="game-over-message">
           {score < 5

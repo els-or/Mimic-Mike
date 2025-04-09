@@ -1,5 +1,3 @@
-// import { useMutation, useQuery } from "@apollo/client";
-// import { CREATE_GAME_SESSION, UPDATE_USER } from "../utils/mutations";
 import { useQuery } from "@apollo/client";
 import { QUERY_USERS } from "../utils/queries";
 import { useState, useEffect } from "react";
@@ -71,7 +69,7 @@ const Home = () => {
 
           <div className="game-info">
             <p>
-              Follow Mike's patterns and repeat them back correctly to score
+              Follow Mike&apos;s patterns and repeat them back correctly to score
               points.
             </p>
             <p>How far can you go?</p>

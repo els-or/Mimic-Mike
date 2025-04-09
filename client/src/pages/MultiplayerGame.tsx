@@ -6,6 +6,7 @@ import { IGameContextProps } from "../interfaces/MultiplayerGameContex.js";
 import GameContext from "../utils/gameContext.js";
 import { MultiplayerGameBoard } from "../components/MultiplayerGame/MultiplayerGameBoard.js";
 import gameService from "../services/gameService.js";
+import { MIKE } from "../components/MultiplayerGame/MIKE.js";
 
 const MultiplayerGame = () => {
   const [isInSession, setInSession] = useState(false);
@@ -119,9 +120,10 @@ const MultiplayerGame = () => {
               marginRight: 30,
             }}
           ></div>
-          {!isInSession && <JoinSession />}
+          {!isInSession ? <JoinSession /> : null}
           {isInSession && !gameOver ? <MultiplayerGameBoard /> : null}
           {isInSession && gameOver ? "Game Over!" : null}
+          {isInSession && !gameOver ? <MIKE /> : null}
         </div>
       </div>
     </GameContext.Provider>

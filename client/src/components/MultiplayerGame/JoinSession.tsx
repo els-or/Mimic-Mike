@@ -1,8 +1,8 @@
-import React, { useEffect, useContext, useState, use } from "react";
+import React, { useEffect, useContext, useState } from "react";
 import gameContext from "../../utils/gameContext.js";
 import socketService from "../../services/socketService.js";
 import gameService from "../../services/gameService.js";
-import { useQuery, useMutation } from "@apollo/client";
+import { useQuery } from "@apollo/client";
 import { QUERY_MULTIPLAYER_SESSIONS } from "../../utils/queries.js";
 
 interface IJoinSessionProps {}
@@ -23,6 +23,19 @@ export function JoinSession(_props: IJoinSessionProps) {
     );
     setSessionList([...new Set<string>(tempSessionList)]);
   }, [data]);
+
+  useEffect(() => {
+    setTimeout(() => {
+      automaticRefresh();
+    }, 5000);
+  }, []);
+
+  const automaticRefresh = () => {
+    refetch();
+    setTimeout(() => {
+      automaticRefresh();
+    }, 5000);
+  };
 
   const { setInSession } = useContext(gameContext);
 

@@ -1,5 +1,5 @@
 import React from "react";
-import "./GameOver.css";
+import "./gameOver.css";
 
 interface GameOverScreenProps {
   score: number;

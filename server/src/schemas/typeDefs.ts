@@ -45,6 +45,7 @@ const typeDefs = `
     login(email: String!, password: String!): Auth
     updateUser(_id: ID!, input: GameSessionInput!): User
     createGameSession(score: Int!): GameSession
+    deleteGameSession(_id: ID!): GameSession
   }
 `;
 

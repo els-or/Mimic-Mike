@@ -20,8 +20,8 @@ const GameOverScreen: React.FC<GameOverScreenProps> = ({
         <h2>Game Over</h2>
         <p className="final-score">
           Your Score: <span>{score}</span>
-          <p>{highScoreMessage}</p>
         </p>
+        <p>{highScoreMessage}</p>
         <p className="game-over-message">
           {score < 5
             ? "Nice try! Keep practicing to improve your memory."

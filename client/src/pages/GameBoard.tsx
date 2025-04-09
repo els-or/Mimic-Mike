@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 //Utility files
-import { createGameSession, updateUserScore, getUser } from "../utils/gameDatabaseHelpers";
+import { createGameSession, updateUserScore, getUser, deleteGameSession } from "../utils/gameDatabaseHelpers";
 import { boardOneButtons } from "../utils/buttonArray";
 import { getRandomInt, playSound } from "../utils/gameLogicHelpers";
 
@@ -203,14 +203,14 @@ const getHighScore= async(): Promise<boolean | null > => {
     if (newHighScore) {
       setHighScoreMessage("New High Score!"); // Update with the message
     } 
-
-    //TODO: call a mutator to end the current game session
   };
       
   const handlePlayAgain = async() => {
       console.log("playing again");
-     
-
+      //Delete the previous game session
+      if(gameSession){
+        await deleteGameSession(client, gameSession._id);
+      }
       //Create a new game session
       const session = await createGameSession(client);
       setGameSession(session); // Store the new session
@@ -219,8 +219,10 @@ const getHighScore= async(): Promise<boolean | null > => {
 
   const handleQuitGame = async() => {
     console.log("game over, returning to home page");
-
-      //TODO: call a mutator to end the current game session
+      //call a mutator to end the current game session
+      if(gameSession){
+        await deleteGameSession(client, gameSession._id);
+      }
       navigate("/");  
   }
 //#endregion Game Over Functions
@@ -324,7 +326,7 @@ const getHighScore= async(): Promise<boolean | null > => {
               onPlayAgain={handlePlayAgain}
               onQuit={handleQuitGame}
             />
-          )};
+          )}
 
           {gameStarted ? (
             <div className="game-container">
@@ -374,7 +376,7 @@ const getHighScore= async(): Promise<boolean | null > => {
               <p>How many rounds can you go?</p>
             </div>
         </div>
-        )};
+        )}
       </div>
     </>
   );

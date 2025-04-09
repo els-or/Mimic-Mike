@@ -365,7 +365,7 @@ const getHighScore= async(): Promise<boolean | null > => {
               <p>User Sequence: {userSequence.join(", ")}</p>
               <br />
               <p>Round: {round}</p>
-              <button onClick={playSequence}>Next Round</button>
+              {/* <button onClick={playSequence}>Next Round</button> */}
             </div>
           </div>
         )        

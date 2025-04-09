@@ -1,4 +1,5 @@
 import express from 'express';
+import http from 'http';
 import path from 'node:path';
 import type { Request, Response } from 'express';
 import db from './config/connection.js'
@@ -6,6 +7,10 @@ import { ApolloServer } from '@apollo/server';// Note: Import from @apollo/serve
 import { expressMiddleware } from '@apollo/server/express4';
 import { typeDefs, resolvers } from './schemas/index.js';
 import { authenticateToken } from './utils/auth.js';
+import cors from 'cors';
+import 'reflect-metadata';
+import socket from './socket.js';
+
 
 import { fileURLToPath } from 'url';
 
@@ -27,6 +32,7 @@ const startApolloServer = async () => {
 
   app.use(express.urlencoded({ extended: false }));
   app.use(express.json());
+  app.use(cors());
 
   app.use('/graphql', expressMiddleware(server as any,
     {
@@ -42,10 +48,14 @@ const startApolloServer = async () => {
     });
   }
 
-  app.listen(PORT, () => {
+  const apolloServer = http.createServer(app);
+
+  apolloServer.listen(PORT, () => {
     console.log(`API server running on port ${PORT}!`);
     console.log(`Use GraphQL at http://localhost:${PORT}/graphql`);
   });
+  socket(apolloServer)
+
 };
 
 startApolloServer();

@@ -5,9 +5,8 @@ import gameContext from "../../utils/gameContext";
 import socketService from "../../services/socketService";
 import gameService from "../../services/gameService";
 
-import wrongAudioFile from "../../assets/wrong.mp3";
-
-const wrongAudio = new Audio(wrongAudioFile);
+const wrongAudio = new Audio("/sounds/wrong.mp3");
+wrongAudio.volume = 0.3;
 
 interface ILightingList {
   green: boolean;

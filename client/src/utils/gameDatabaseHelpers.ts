@@ -27,11 +27,11 @@ export async function createGameSession(
 
 export async function updateUserScore(client: ApolloClient<any>, gameSession: GameSession, localScore: number): Promise<UserData | null>{
     try{
-        console.log("CLIENT = ", client);
-        console.log("GAME SESSION = ", gameSession);
-        console.log("GAME P ID = ", gameSession?.player._id);
-        console.log("LOCAL SCORE = ", localScore);
-        console.log("GAME SESSION ID = ", gameSession?._id);
+        // console.log("CLIENT = ", client);
+        // console.log("GAME SESSION = ", gameSession);
+        // console.log("GAME P ID = ", gameSession?.player._id);
+        // console.log("LOCAL SCORE = ", localScore);
+        // console.log("GAME SESSION ID = ", gameSession?._id);
 
         
         const { data } = await client.mutate({
@@ -45,7 +45,7 @@ export async function updateUserScore(client: ApolloClient<any>, gameSession: Ga
                 },
               },
         });
-        console.log("UPDATE_USER DATA:", data )
+        //console.log("UPDATE_USER DATA:", data )
         //Return the updated user or null if no user is returned
         return data.updateUser 
 
@@ -66,7 +66,7 @@ export async function getUser(client: ApolloClient<any>): Promise<UserData | nul
             return data.me;
         }
 
-        console.log('No user data found.');
+        //console.log('No user data found.');
         return null;
 
     } catch (error) {
@@ -82,7 +82,7 @@ export async function deleteGameSession(client: ApolloClient<any>, gameSessionId
         variables: { _id: gameSessionId },
       });
   
-      console.log("Deleted game session:", data?.deleteGameSession); // 👈 log the returned session
+      //console.log("Deleted game session:", data?.deleteGameSession); // 👈 log the returned session
   
       return data.deleteGameSession as GameSession;
   

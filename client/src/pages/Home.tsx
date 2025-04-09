@@ -14,16 +14,7 @@ interface LeaderboardEntry {
 }
 
 const Home = () => {
-  // const [createGameSession, { data, loading, error }] =
-  //   useMutation(CREATE_GAME_SESSION);
-  // const [updateUser] = useMutation(UPDATE_USER);
-  // const [gameSession, setGameSession] = useState<{
-  //   _id: string;
-  //   player: { _id: string };
-  //   score: number;
-  // } | null>(null);
-  // const [score, setScore] = useState(0);
-  // const [gameStarted, setGameStarted] = useState(false);
+ 
   const [highScore, setHighScore] = useState(0);
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
   console.log(highScore); 
@@ -53,33 +44,6 @@ const Home = () => {
       setLeaderboard(sortedUsers);
     }
   }, [userData]);
-
-  // const handleCreateSession = async () => {
-  //   try {
-  //     const { data } = await createGameSession({ variables: { score: 0 } });
-  //     setGameSession(data.createGameSession);
-  //     setScore(data.createGameSession.score);
-  //   } catch (error) {
-  //     console.error("Error creating game session:", error);
-  //   }
-  // };
-
-  // const handleUpdateUser = async (score: number) => {
-  //   try {
-  //     const { data } = await updateUser({
-  //       variables: {
-  //         _id: gameSession?.player._id,
-  //         input: {
-  //           _id: gameSession?._id,
-  //           player: { _id: gameSession?.player._id },
-  //           score: score,
-  //         },
-  //       },
-  //     });
-  //   } catch (error) {
-  //     console.error("Error updating user:", error);
-  //   }
-  // };
 
   // Generate placement badges for leaderboard
   const getPlacementBadge = (index: number) => {

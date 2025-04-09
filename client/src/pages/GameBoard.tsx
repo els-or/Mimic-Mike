@@ -1,9 +1,18 @@
-import { useMutation } from "@apollo/client";
-import { CREATE_GAME_SESSION } from "../utils/mutations";
+//Libraries
+import { useApolloClient } from "@apollo/client";
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
+//Utility files
+import { createGameSession, updateUserScore, getUser } from "../utils/gameDatabaseHelpers";
 import { boardOneButtons } from "../utils/buttonArray";
 import { getRandomInt, playSound } from "../utils/gameLogicHelpers";
+
+
+//Interfaces
+import { GameSession } from "../interfaces/GameSession";
+
+//Components
 import GameOverScreen from "../components/Game/GameOverScreen";
 
 /* **********TODOS**********
@@ -11,23 +20,26 @@ import GameOverScreen from "../components/Game/GameOverScreen";
   - try to find uniform test sounds 
   - consider changing conditional checks with buttons to use button.id for comparison instead of button.text
   - update the round number before the sequence plays so the user can see what round they are on.
+  -add loading spinner
+  -make sure game session is terminated if user leaves the page via a navbar button
+  -add check to see if the user is logged in before allowing them to play the game
  */
 
 
 const GameBoard = () => {
 
-  const [createGameSession, { loading, error }] = useMutation(CREATE_GAME_SESSION);
+  const navigate = useNavigate();
 
 //#region State Variables
-  //State to store the game session data
-  const [gameSession, setGameSession] = useState<{
-    _id: string;
-    player: { _id: string };
-    score: number;
-  } | null>(null);
+
+  //State to store and track the game session
+  const [gameSession, setGameSession] = useState<GameSession | null>(null);
 
   //State to store the game's score (**NOTE: this is not the same as the score that is a part of createGameSession**)
   const [score, setScore] = useState(0); 
+
+  //State to hold the users current high score for display upon game over
+  const [highScoreMessage, setHighScoreMessage] = useState('');
 
   //State to track if the game has started.
   const [gameStarted, setGameStarted] = useState(false);
@@ -57,36 +69,34 @@ const GameBoard = () => {
 
 //#region Create Game Session
 
-  //FOR DEBUGGING GAME SESSIONS
-  //console.log("Session ID:", gameSession?._id); //Log the session ID for debugging
-  //console.log("Data:", data); //Log the data for debugging
+  const client = useApolloClient();
+ 
+  useEffect(() => {
+    console.log("---------------------------");
+    console.log("CLIENT USE EFFECT TRIGGERED");
+    console.log("---------------------------\n");
+    //TODO: make sure generateSession is used
+    const generateSession = async () => {
+      const session = await createGameSession(client);
+      if(session){
+        console.log('New game session:', session);
+        //Store the session in state
+        setGameSession(session);
+      }else{
+        console.error("Failed to create game session.");
+        //TODO: Handle the failure case (e.g., show an error message or retry)
+      }
+    };
 
-
-  //TODO: remove this and use the code from Home instead.
-  const handleCreateSession = async () => {
-    console.log("---------------------")
-    console.log("running handleCreateSession");
-    console.log("---------------------\n")
-    try{
-      const { data } = await createGameSession({variables: { score: 0 } }); 
-
-      //Set the game session state with the response data
-      setGameSession(data.createGameSession);
-
-      //Log the game session data for debugging
-      console.log("Game session data:", data.createGameSession); 
-
-      //update the score state with the initial score from the response
-      setScore(data.createGameSession.score);
-
-      //Log notification that game session was created.
-      console.log("Game session created:", data.createGameSession);
-
-    }catch (error) {
-      console.error("Error creating game session:", error);
+    if(!gameSession){
+      //!!! WARNING: This could loop repeatedly if it continues to fail when communicating with the DB
+      //TODO: Improve this so it will stop if it fails to get the data too many times
+      generateSession();
     }
-  };
-
+    
+    startOrResetGame();
+  },[client, gameSession]);
+  
 //#endregion Create Game Session
 
 //#region Game Start/Reset Functions
@@ -94,23 +104,29 @@ const GameBoard = () => {
     console.log("---------------------");
     console.log("running startOrResetGame");
     console.log("---------------------\n");
+    try{
+        setIsLoading(true);
+        setGameOver(false);
+        setGameSequence([]);
+        setUserSequence([]);
+        setScore(0);
+        setRound(0);
     
-    setIsLoading(true);
-    setGameOver(false);
-    setGameSequence([]);
-    setUserSequence([]);
-    setScore(0);
-    setRound(0);
-
-    setInputLocked(false);
-
-    // Simulate a short delay to ensure all states are reset before proceeding
-    setTimeout(() => {
-      setIsLoading(false); // Mark loading as complete
-      //Important: Do this last so the game UI sees a fully initialized state
-    setGameStarted(true);
-    }, 1000); // Adjust the delay as needed
-
+        setInputLocked(false);
+    
+        // Simulate a short delay to ensure all states are reset before proceeding
+        setTimeout(() => {
+          setIsLoading(false); // Mark loading as complete
+          //Important: Do this last so the game UI sees a fully initialized state
+        setGameStarted(true);
+        }, 1000); // Adjust the delay as needed
+  
+    }catch(error){
+      console.error("Unable to create game session: ", error);
+      //TODO: make an error modal??
+      //TODO: add something here to offer a way to retry creating a game session
+    }
+    
   };
 
   useEffect(() => {
@@ -127,16 +143,85 @@ const GameBoard = () => {
 //#endregion Game Start/Reset Functions
 
 //#region Game Over Functions
-  const handlePlayAgain = () => {
-    console.log("playing again")
-    //TODO: Add code here to handle any changes that need to be made to the database session
-    startOrResetGame();
-  };
+//this updates the user score as well by calling a function that uses the UPDATE_USER mutation
+const getHighScore= async(): Promise<boolean | null > => {
+  
+  let newHighScore = false;
 
-  const handleQuitGame = () => {
-    //TODO: call a mutator to end the current game session
-    //This reloads the current page
-    window.location.reload(); 
+  if(!gameSession){
+      throw new Error ("Unable to find user");
+  }
+  try{
+      //this calls a helper method that uses the GET_ME query
+      const currentUser = await getUser(client);
+
+      if(!currentUser){
+          throw new Error("Unable to find user");
+      }
+
+    const oldHighScore = currentUser.highScore;
+
+    //Update the user with the current score from the game session (if it exceeds the user's high score)
+    //Pass the entire game session
+    const updatedUser = await updateUserScore(client, gameSession, score); 
+    console.log("UPDATED USER = ", updatedUser)
+
+    if (updatedUser) {
+      console.log("oldHighScore ========== ", oldHighScore);
+      console.log("updatedUser.highScore ====== ", updatedUser.highScore);
+
+      // If the user's high score has increased, display a new high score message
+      if (updatedUser.highScore > oldHighScore) {
+          newHighScore = true;
+      } 
+      else{
+          newHighScore = false;
+      }
+    }
+
+  return newHighScore;
+
+  }catch(error){
+    console.error('Error handling game over:', error);
+    return null;
+  }
+}
+
+  //!!!! IMPORTANT NOTE: handleGameOver is called when the user fails a check inside the handlePlayerInput function
+  const handleGameOver = async() => {
+    setGameOver(true);
+    const newHighScore = await getHighScore(); // Await the result from getHighScore
+
+    // console.log("NEW HIGH SCORE = ", newHighScore);
+    // if (!newHighScore) {
+    //   console.error("Could not determine player's high score");
+    //   return;
+    // }
+  
+    // Update the high score message if there is a new high score
+    if (newHighScore) {
+      setHighScoreMessage("New High Score!"); // Update with the message
+    } 
+    else{
+      setHighScoreMessage("Good Try!"); // Alternatively, a default message if no new high score
+    }
+  };
+      
+
+  const handlePlayAgain = async() => {
+      console.log("playing again");
+     //TODO: call a mutator to end the current game session
+
+      //Create a new game session
+      const session = await createGameSession(client);
+      setGameSession(session); // Store the new session
+  }
+
+
+  const handleQuitGame = async() => {
+    console.log("game over, returning to home page");
+      //TODO: call a mutator to end the current game session
+      navigate("/");  
   }
 //#endregion Game Over Functions
 
@@ -230,7 +315,7 @@ const GameBoard = () => {
       console.log("INCORRECT");
       setInputLocked(true);
       setTimeout(() => {
-        setGameOver(true);
+        handleGameOver();
       }, 2000); //update this to reflect the sound playback length
       return;
     }
@@ -252,51 +337,42 @@ const GameBoard = () => {
 
   return (
     <div>
-      {gameOver && <GameOverScreen score={score} onPlayAgain={handlePlayAgain} onQuit={handleQuitGame} />}
+      {gameOver && <GameOverScreen score={score} highScoreMessage={highScoreMessage} onPlayAgain={handlePlayAgain} onQuit={handleQuitGame} />}
 
-      {gameStarted ? (
-        <div>
-          <h1>Game Session ID: {gameSession?._id}</h1>
-          <p>Player ID: {gameSession?.player._id}</p>
-          <p>Score: {score}</p>
-          <div className="game-board">
-            {boardOneButtons.map((button) => (
-              <button
-                key={button.id}
-                onClick={() => handlePlayerInput(button.id.toString())}
-                //TODO: I want to set activeButton to the button's id value converted to a string, but I am not sure how to do that.
-                style={{
-                    backgroundColor: activeButton === button.text ? button.color[1]: button.color[0],
-                    transition: "background-color 0.3s ease",
-                    pointerEvents: inputLocked ? "none" : "auto", //Disable interaction while sequence is playing
-                }}
-              >
-                {button.text}
-              </button>
-            ))}
-            <p>Game Sequence: {gameSequence.join(", ")}</p>
-            <p>User Sequence: {userSequence.join(", ")}</p>
-            <br />
-            <p>Round: {round}</p>
-            <button onClick={playSequence}>Next Round</button>
-          </div>
-        </div>
+      {isLoading ? (
+        // TODO: replace with something nicer looking.
+        <p>LOADING...</p>
       ) : (
-        <div>
-          <h1>Welcome to the Game!</h1>
-          {!gameSession ? (
-            <button onClick={handleCreateSession}>Create Game Session</button>
-          ) : (
-            <>
-              <p>Game session created with ID: {gameSession._id}</p>
-              <button onClick={startOrResetGame}>Start Game</button>
-            </>
-          )}
-          {loading && <p>Loading...</p>}
-          {error && <p>Error: {error.message}</p>}
-        </div>
+        gameStarted && (
+            <div>
+            <p>Score: {score}</p>
+            <div className="game-board">
+              {boardOneButtons.map((button) => (
+                <button
+                  key={button.id}
+                  onClick={() => handlePlayerInput(button.id.toString())}
+                  //TODO: I want to set activeButton to the button's id value converted to a string, but I am not sure how to do that.
+                  style={{
+                      backgroundColor: activeButton === button.text ? button.color[1]: button.color[0],
+                      transition: "background-color 0.3s ease",
+                      pointerEvents: inputLocked ? "none" : "auto", //Disable interaction while sequence is playing
+                  }}
+                >
+                  {button.text}
+                </button>
+              ))}
+              <p>Game Sequence: {gameSequence.join(", ")}</p>
+              <p>User Sequence: {userSequence.join(", ")}</p>
+              <br />
+              <p>Round: {round}</p>
+              <button onClick={playSequence}>Next Round</button>
+            </div>
+          </div>
+        )        
       )}
+
     </div>
+    
   );
 }
 

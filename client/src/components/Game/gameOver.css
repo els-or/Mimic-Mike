@@ -1,46 +1,145 @@
-/*!!! Christian: Feel free to style this as you see fit.*/
-
 .game-over-modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: rgba(0, 0, 0, 0.7); /* Dark semi-transparent background */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000; /* Make sure the modal is on top of other content */
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.game-over-content {
+  background-color: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  padding: 2.5rem;
+  border-radius: 20px;
+  text-align: center;
+  width: 90%;
+  max-width: 400px;
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateY(-50px);
+    opacity: 0;
   }
-  
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.game-over-content h2 {
+  font-size: 2.5rem;
+  margin-bottom: 1.5rem;
+  color: #1a2a6c;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.final-score {
+  font-size: 1.5rem;
+  margin-bottom: 1.5rem;
+  color: #333;
+}
+
+.final-score span {
+  font-size: 2.2rem;
+  font-weight: bold;
+  background: linear-gradient(135deg, #1a2a6c, #b21f1f);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  padding: 0 0.3rem;
+}
+
+.game-over-message {
+  font-size: 1.1rem;
+  margin-bottom: 2rem;
+  line-height: 1.5;
+  color: #555;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.play-again-btn,
+.quit-btn {
+  padding: 0.8rem 1.5rem;
+  border-radius: 30px;
+  font-weight: bold;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: none;
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.play-again-btn {
+  background-color: #b21f1f;
+  color: white;
+}
+
+.quit-btn {
+  background-color: #1a2a6c;
+  color: white;
+}
+
+.play-again-btn::before,
+.quit-btn::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+  z-index: -1;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  border-radius: 30px;
+}
+
+.play-again-btn:hover,
+.quit-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.play-again-btn:hover::before,
+.quit-btn:hover::before {
+  opacity: 1;
+}
+
+@media (max-width: 480px) {
   .game-over-content {
-    background-color: #fff;
-    padding: 20px;
-    border-radius: 10px;
-    text-align: center;
-    width: 300px;
+    padding: 1.8rem;
   }
-  
+
   .game-over-content h2 {
-    margin-bottom: 15px;
+    font-size: 2rem;
   }
-  
+
+  .final-score {
+    font-size: 1.3rem;
+  }
+
   .modal-actions {
-    display: flex;
-    justify-content: space-around;
+    flex-direction: column;
+    gap: 0.5rem;
   }
-  
-  .modal-actions button {
-    padding: 10px;
-    margin: 5px;
-    border: none;
-    background-color: #4CAF50;
-    color: white;
-    cursor: pointer;
-    border-radius: 5px;
+
+  .play-again-btn,
+  .quit-btn {
+    width: 100%;
   }
-  
-  .modal-actions button:hover {
-    background-color: #45a049;
-  }
-  
+}

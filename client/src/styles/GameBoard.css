@@ -1,0 +1,255 @@
+/* Game Container styles */
+.game-container {
+  background-color: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  border-radius: 35px;
+  padding: 2.5rem;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  max-width: 750px;
+  width: 90%;
+  margin: 2rem auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.game-header {
+  width: 100%;
+  margin-bottom: 2rem;
+}
+
+.game-header h1 {
+  font-size: 3rem;
+  color: #1a2a6c;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.15);
+  margin-bottom: 0.5rem;
+}
+
+.game-score {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #b21f1f;
+}
+
+/* Simon style game board */
+.simon-container {
+  position: relative;
+  width: 335px;
+  height: 335px;
+  margin: 0 auto 2rem;
+  border-radius: 40%;
+  display: grid;
+  grid-template-areas:
+    "a b"
+    "c d";
+  grid-gap: 10px;
+  padding: 10px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+  background-color: #333;
+  transform: rotate(45deg);
+}
+
+.simon-button {
+  position: relative;
+  width: 150px;
+  height: 150px;
+  border-radius: 15px;
+  cursor: pointer;
+  overflow: hidden;
+  transition: filter 0.3s ease, transform 0.1s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.simon-button:hover {
+  filter: brightness(1.1);
+}
+
+.simon-button:active,
+.simon-button.active {
+  filter: brightness(1.5) !important;
+  transform: scale(0.98);
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.7);
+  animation: glow 0.3s forwards;
+  z-index: 5;
+}
+
+.button-inner {
+  transform: rotate(-45deg);
+  font-size: 1.5rem;
+  font-weight: bold;
+  position: relative;
+  color: rgba(255, 255, 255, 0.9);
+  text-shadow: 0px 0px 1px #000, 0px 0px 2px #000, 0px 0px 3px #000;
+  user-select: none;
+}
+
+/* Style for active state text */
+.simon-button.active .button-inner {
+  color: rgba(255, 255, 255, 0.9);
+  text-shadow: 0px 0px 1px #000, 0px 0px 2px #000, 0px 0px 3px #000;
+}
+
+.simon-a {
+  grid-area: a;
+  background-color: #b71c1c;
+  border-top-left-radius: 100% 100%;
+}
+
+.simon-a.active {
+  background-color: #ff4d4d; /* Brighter red */
+}
+
+.simon-b {
+  grid-area: b;
+  background-color: #0d47a1;
+  border-top-right-radius: 100% 100%;
+}
+
+.simon-b.active {
+  background-color: #4d79ff; /* Brighter blue */
+}
+
+.simon-c {
+  grid-area: c;
+  background-color: #1b5e20;
+  border-bottom-left-radius: 100% 100%;
+}
+
+.simon-c.active {
+  background-color: #4dff4d; /* Brighter green */
+}
+
+.simon-d {
+  grid-area: d;
+  background-color: #ff6f00;
+  border-bottom-right-radius: 100% 100%;
+}
+
+.simon-d.active {
+  background-color: #ffb84d; /* Brighter orange */
+}
+
+.simon-center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(-45deg);
+  width: 80px;
+  height: 80px;
+  background-color: #f5f5f5;
+  border-radius: 50%;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.2);
+}
+
+.round-display {
+  font-size: 1.8rem;
+  font-weight: bold;
+  color: #1a2a6c;
+}
+
+/* Control buttons */
+.game-controls {
+  margin-top: 2rem;
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+}
+
+.secondary-button {
+  background-color: #1a2a6c;
+  color: white;
+  border: none;
+  padding: 0.8rem 1.6rem;
+  font-size: 1.1rem;
+  border-radius: 30px;
+  cursor: pointer;
+  transition: all 0.3s;
+  font-weight: bold;
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.secondary-button::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+  z-index: -1;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  border-radius: 30px;
+}
+
+.secondary-button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.secondary-button:hover::before {
+  opacity: 1;
+}
+
+/* Media queries for responsiveness */
+@media (max-width: 768px) {
+  .simon-container {
+    width: 290px;
+    height: 290px;
+  }
+
+  .simon-button {
+    width: 130px;
+    height: 130px;
+  }
+
+  .simon-center {
+    width: 70px;
+    height: 70px;
+  }
+
+  .game-header h1 {
+    font-size: 2.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .simon-container {
+    width: 245px;
+    height: 245px;
+  }
+
+  .simon-button {
+    width: 110px;
+    height: 110px;
+  }
+
+  .simon-center {
+    width: 60px;
+    height: 60px;
+  }
+
+  .game-header h1 {
+    font-size: 2rem;
+  }
+}
+
+/* animation for the glow effect */
+@keyframes glow {
+  0% {
+    box-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+  }
+  100% {
+    box-shadow: 0 0 25px rgba(255, 255, 255, 0.8);
+  }
+}

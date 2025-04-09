@@ -1,25 +1,52 @@
-import { useMutation } from "@apollo/client";
-import { CREATE_GAME_SESSION, UPDATE_USER } from "../utils/mutations";
+
+//Libraries
+import { useApolloClient } from "@apollo/client";
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+
+//Utility files
+import { createGameSession, updateUserScore, getUser } from "../utils/gameDatabaseHelpers";
 import { boardOneButtons } from "../utils/buttonArray";
 import { getRandomInt, playSound } from "../utils/gameLogicHelpers";
+
+
+//Interfaces
+import { GameSession } from "../interfaces/GameSession";
+
+//Components
 import GameOverScreen from "../components/Game/GameOverScreen";
+
+
+/* **********TODOS**********
+  - clean up code
+  - try to find uniform test sounds 
+  - consider changing conditional checks with buttons to use button.id for comparison instead of button.text
+  - update the round number before the sequence plays so the user can see what round they are on.
+  -add loading spinner
+  -make sure game session is terminated if user leaves the page via a navbar button
+  -add check to see if the user is logged in before allowing them to play the game
+ */
+
+
 import "../styles/GameBoard.css";
 
+
 const GameBoard = () => {
-  const [createGameSession, { loading, error }] =
-    useMutation(CREATE_GAME_SESSION);
+ const navigate = useNavigate();
 
-  // State variables
-  const [gameSession, setGameSession] = useState<{
-    _id: string;
-    player: { _id: string };
-    score: number;
-  } | null>(null);
-  // Tracks the player's current score in the game
-  const [score, setScore] = useState(0);
+//#region State Variables
 
-  // Controls whether the game has been started
+  //State to store and track the game session
+  const [gameSession, setGameSession] = useState<GameSession | null>(null);
+
+  //State to store the game's score (**NOTE: this is not the same as the score that is a part of createGameSession**)
+  const [score, setScore] = useState(0); 
+
+  //State to hold the users current high score for display upon game over
+  const [highScoreMessage, setHighScoreMessage] = useState('');
+
+  //State to track if the game has started.
+
   const [gameStarted, setGameStarted] = useState(false);
 
   // Indicates if the game has ended
@@ -43,49 +70,162 @@ const GameBoard = () => {
   // Tracks which button is currently activated/highlighted
   const [activeButton, setActiveButton] = useState<string | null>(null);
 
-  // Create game session
-  const handleCreateSession = async () => {
-    try {
-      const { data } = await createGameSession({ variables: { score: 0 } });
-      setGameSession(data.createGameSession);
-      setScore(data.createGameSession.score);
-    } catch (error) {
-      console.error("Error creating game session:", error);
+//#endregion State Variables
+
+//#region Create Game Session
+
+  const client = useApolloClient();
+ 
+  useEffect(() => {
+    console.log("---------------------------");
+    console.log("CLIENT USE EFFECT TRIGGERED");
+    console.log("---------------------------\n");
+    //TODO: make sure generateSession is used
+    const generateSession = async () => {
+      const session = await createGameSession(client);
+      if(session){
+        console.log('New game session:', session);
+        //Store the session in state
+        setGameSession(session);
+      }else{
+        console.error("Failed to create game session.");
+        //TODO: Handle the failure case (e.g., show an error message or retry)
+      }
+    };
+
+    if(!gameSession){
+      //!!! WARNING: This could loop repeatedly if it continues to fail when communicating with the DB
+      //TODO: Improve this so it will stop if it fails to get the data too many times
+      generateSession();
     }
-  };
+    
+    startOrResetGame();
+  },[client, gameSession]);
+  
+//#endregion Create Game Session
 
-  // Game start/reset
+//#region Game Start/Reset Functions
   const startOrResetGame = () => {
-    setIsLoading(true);
-    setGameOver(false);
-    setGameSequence([]);
-    setUserSequence([]);
-    setScore(0);
-    setRound(0);
-    setInputLocked(false);
+    console.log("---------------------");
+    console.log("running startOrResetGame");
+    console.log("---------------------\n");
+    try{
+        setIsLoading(true);
+        setGameOver(false);
+        setGameSequence([]);
+        setUserSequence([]);
+        setScore(0);
+        setRound(0);
+    
+        setInputLocked(false);
+    
+        // Simulate a short delay to ensure all states are reset before proceeding
+        setTimeout(() => {
+          setIsLoading(false); // Mark loading as complete
+          //Important: Do this last so the game UI sees a fully initialized state
+        setGameStarted(true);
+        }, 5000); // Adjust the delay as needed
+  
+    }catch(error){
+      console.error("Unable to create game session: ", error);
+      //TODO: make an error modal??
+      //TODO: add something here to offer a way to retry creating a game session
+    }
 
-    setTimeout(() => {
-      setIsLoading(false);
-      setGameStarted(true);
-    }, 1000);
   };
 
   // Initialize game when ready
   useEffect(() => {
     if (!isLoading && gameStarted) {
-      playSequence();
+      setTimeout(() => {
+          playSequence();
+      }, 3000); 
+      
     }
   }, [isLoading, gameStarted]);
 
-  // Game over handlers
-  const handlePlayAgain = () => {
-    startOrResetGame();
-  };
+//#endregion Game Start/Reset Functions
 
-  const handleQuitGame = () => {
-    window.location.assign("/");
-  };
+//#region Score Functions
+//this updates the user score as well by calling a function that uses the UPDATE_USER mutation
+const getHighScore= async(): Promise<boolean | null > => {
+  
+  let newHighScore = false;
 
+  if(!gameSession){
+      throw new Error ("Unable to find user");
+  }
+  try{
+      //this calls a helper method that uses the GET_ME query
+      const currentUser = await getUser(client);
+
+      if(!currentUser){
+          throw new Error("Unable to find user");
+      }
+
+    const oldHighScore = currentUser.highScore;
+
+    //Update the user with the current score from the game session (if it exceeds the user's high score)
+    //Pass the entire game session
+    const updatedUser = await updateUserScore(client, gameSession, score); 
+    console.log("UPDATED USER = ", updatedUser)
+
+    if (updatedUser) {
+      console.log("oldHighScore ========== ", oldHighScore);
+      console.log("updatedUser.highScore ====== ", updatedUser.highScore);
+
+      // If the user's high score has increased, display a new high score message
+      if (updatedUser.highScore > oldHighScore) {
+          newHighScore = true;
+      } 
+      else{
+          newHighScore = false;
+      }
+    }
+
+  return newHighScore;
+
+  }catch(error){
+    console.error('Error handling game over:', error);
+    return null;
+  }
+}
+//#endreigon High Score Functions
+
+//#region Game Over Functions
+  //!!!! IMPORTANT NOTE: handleGameOver is called when the user fails a check inside the handlePlayerInput function
+  const handleGameOver = async() => {
+    setGameOver(true);
+    //!!!This updates the user
+    const newHighScore = await getHighScore(); // Await the result from getHighScore
+
+    // Update the high score message if there is a new high score
+    if (newHighScore) {
+      setHighScoreMessage("New High Score!"); // Update with the message
+    } 
+
+    //TODO: call a mutator to end the current game session
+  };
+      
+  const handlePlayAgain = async() => {
+      console.log("playing again");
+     
+
+      //Create a new game session
+      const session = await createGameSession(client);
+      setGameSession(session); // Store the new session
+  }
+
+
+  const handleQuitGame = async() => {
+    console.log("game over, returning to home page");
+
+      //TODO: call a mutator to end the current game session
+      navigate("/");  
+  }
+//#endregion Game Over Functions
+
+//#region Play Sequence
   // CPU game sequence logic
   const playSequence = () => {
     const randomInt = getRandomInt(1, 4);
@@ -98,6 +238,7 @@ const GameBoard = () => {
     const newSequence = [...gameSequence, nextButton.id.toString()];
     setGameSequence(newSequence);
     setInputLocked(true);
+    setRound((prev) => prev + 1);
 
     newSequence.forEach((buttonId, index) => {
       const button = boardOneButtons.find((b) => b.id.toString() === buttonId);
@@ -107,7 +248,7 @@ const GameBoard = () => {
 
       // Light up the button and play the sound
       setTimeout(() => {
-        playSound(button.sound, 0.25); // 25% volume
+        playSound(button.sound);
         setActiveButton(button.text);
       }, onTime);
 
@@ -122,10 +263,11 @@ const GameBoard = () => {
     setTimeout(() => {
       setInputLocked(false);
       setUserSequence([]);
-      setRound((prev) => prev + 1);
     }, totalTime + 100);
   };
+//#endregion Play Sequence
 
+//#region Player Input
   // Player input handler
   const handlePlayerInput = (buttonId: string) => {
     if (inputLocked || userSequence.length >= gameSequence.length) {
@@ -146,15 +288,16 @@ const GameBoard = () => {
       updatedUserSequence[currentIndex] === gameSequence[currentIndex];
 
     // Show feedback
-    playSound(button.sound, 0.25); // 25% volume
+    playSound(button.sound);
     setActiveButton(button.text);
     setTimeout(() => setActiveButton(null), 400);
 
     if (!isCorrect) {
       setInputLocked(true);
       setTimeout(() => {
-        setGameOver(true);
-      }, 1000);
+        handleGameOver();
+      }, 2000); //update this to reflect the sound playback length
+
       return;
     }
 
@@ -167,51 +310,54 @@ const GameBoard = () => {
       }, 1000);
     }
   };
+//#endregion Player Input
 
+//#region Return TSX
   return (
     <>
       <div className="mimic-mike-home"></div>
-      <div className="content-wrapper">
-        {gameOver && (
-          <GameOverScreen
-            score={score}
-            onPlayAgain={handlePlayAgain}
-            onQuit={handleQuitGame}
-          />
-        )}
+        <div className="content-wrapper">
+          {gameOver && (
+            <GameOverScreen
+              score={score}
+              highScoreMessage={highScoreMessage} 
+              onPlayAgain={handlePlayAgain}
+              onQuit={handleQuitGame}
+            />
+          )};
 
-        {gameStarted ? (
-          <div className="game-container">
-            <div className="game-header">
-              <h1>Round {round}</h1>
-              <p className="game-score">Score: {score}</p>
-            </div>
-
-            <div className="simon-container">
-              {boardOneButtons.map((button) => (
-                <div
-                  key={button.id}
-                  className={`simon-button simon-${button.text.toLowerCase()} ${
-                    activeButton === button.text ? "active" : ""
-                  }`}
-                  onClick={() => handlePlayerInput(button.id.toString())}
-                  style={{
-                    pointerEvents: inputLocked ? "none" : "auto",
-                  }}
-                >
-                  <div className="button-inner">{button.text}</div>
-                </div>
-              ))}
-              <div className="simon-center">
-                <div className="round-display">{round}</div>
+          {gameStarted ? (
+            <div className="game-container">
+              <div className="game-header">
+                <h1>Round {round}</h1>
+                <p className="game-score">Score: {score}</p>
               </div>
-            </div>
 
-            <div className="game-controls">
-              <button className="secondary-button" onClick={handleQuitGame}>
-                Quit Game
-              </button>
-            </div>
+              <div className="simon-container">
+                {boardOneButtons.map((button) => (
+                  <div
+                    key={button.id}
+                    className={`simon-button simon-${button.text.toLowerCase()} ${
+                      activeButton === button.text ? "active" : ""
+                    }`}
+                    onClick={() => handlePlayerInput(button.id.toString())}
+                    style={{
+                      pointerEvents: inputLocked ? "none" : "auto",
+                    }}
+                  >
+                      <div className="button-inner">{button.text}</div>
+                  </div>
+                ))}
+                <div className="simon-center">
+                    <div className="round-display">{round}</div>
+                </div>
+              </div>
+
+              <div className="game-controls">
+                  <button className="secondary-button" onClick={handleQuitGame}>
+                    Quit Game
+                  </button>
+              </div>
           </div>
         ) : (
           <div className="home-container">
@@ -227,27 +373,12 @@ const GameBoard = () => {
               </p>
               <p>How many rounds can you go?</p>
             </div>
-
-            {!gameSession ? (
-              <button
-                className="play-button pulse"
-                onClick={handleCreateSession}
-              >
-                Create Game Session
-              </button>
-            ) : (
-              <button className="play-button pulse" onClick={startOrResetGame}>
-                Start Game
-              </button>
-            )}
-
-            {loading && <div className="loading-state">Loading...</div>}
-            {error && <div className="error-state">Error: {error.message}</div>}
-          </div>
-        )}
+        </div>
+        )};
       </div>
     </>
   );
+//#enregion Return TSX
 };
 
 export default GameBoard;

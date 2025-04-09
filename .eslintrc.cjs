@@ -23,6 +23,7 @@ module.exports = {
   },
   rules: {
     'react/react-in-jsx-scope': 'off', // Allow JSX without needing React in scope (React 17+)
+    '@typescript-eslint/no-explicit-any': 'off', // Disable type checking for "any"
   },
   overrides: [
     {

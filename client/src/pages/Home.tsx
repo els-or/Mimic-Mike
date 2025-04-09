@@ -1,5 +1,3 @@
-// import { useMutation, useQuery } from "@apollo/client";
-// import { CREATE_GAME_SESSION, UPDATE_USER } from "../utils/mutations";
 import { useQuery } from "@apollo/client";
 import { QUERY_USERS } from "../utils/queries";
 import { useState, useEffect } from "react";
@@ -14,16 +12,7 @@ interface LeaderboardEntry {
 }
 
 const Home = () => {
-  // const [createGameSession, { data, loading, error }] =
-  //   useMutation(CREATE_GAME_SESSION);
-  // const [updateUser] = useMutation(UPDATE_USER);
-  // const [gameSession, setGameSession] = useState<{
-  //   _id: string;
-  //   player: { _id: string };
-  //   score: number;
-  // } | null>(null);
-  // const [score, setScore] = useState(0);
-  // const [gameStarted, setGameStarted] = useState(false);
+ 
   const [highScore, setHighScore] = useState(0);
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
   console.log(highScore); 
@@ -54,33 +43,6 @@ const Home = () => {
     }
   }, [userData]);
 
-  // const handleCreateSession = async () => {
-  //   try {
-  //     const { data } = await createGameSession({ variables: { score: 0 } });
-  //     setGameSession(data.createGameSession);
-  //     setScore(data.createGameSession.score);
-  //   } catch (error) {
-  //     console.error("Error creating game session:", error);
-  //   }
-  // };
-
-  // const handleUpdateUser = async (score: number) => {
-  //   try {
-  //     const { data } = await updateUser({
-  //       variables: {
-  //         _id: gameSession?.player._id,
-  //         input: {
-  //           _id: gameSession?._id,
-  //           player: { _id: gameSession?.player._id },
-  //           score: score,
-  //         },
-  //       },
-  //     });
-  //   } catch (error) {
-  //     console.error("Error updating user:", error);
-  //   }
-  // };
-
   // Generate placement badges for leaderboard
   const getPlacementBadge = (index: number) => {
     switch (index) {
@@ -107,7 +69,7 @@ const Home = () => {
 
           <div className="game-info">
             <p>
-              Follow Mike's patterns and repeat them back correctly to score
+              Follow Mike&apos;s patterns and repeat them back correctly to score
               points.
             </p>
             <p>How far can you go?</p>

@@ -23,9 +23,11 @@ const MultiplayerGame = () => {
   const [sessionList, setSessionList] = useState<string[]>([]);
 
   const connectSocket = async () => {
-    await socketService.connect("http://localhost:3001").catch((err) => {
-      console.log("Error: ", err);
-    });
+    await socketService
+      .connect("https://mimic-mike.onrender.com")
+      .catch((err) => {
+        console.log("Error: ", err);
+      });
   };
 
   useEffect(() => {

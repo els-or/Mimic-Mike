@@ -14,10 +14,16 @@ export class GameController {
     public async updateGame(@SocketIO() io: Server, @ConnectedSocket() socket: Socket, @MessageBody() message: any ) {
         const gameSession = this.getSocketGameSession(socket)
         if (message.gameStatus.roundEnd) {
-            message.gameStatus.newPattern = generatePattern(message.gameStatus.round + 3)
+            console.log("Round end message received", message)
+            const patternMessage = {
+                gameStatus: {
+                    newPattern: generatePattern(message.gameStatus.round + 3),
+                }
+            }
+            io.to(gameSession).emit("on_game_update", patternMessage)
         }
-        if (message.gameStatus.roundEnd || message.gameStatus.gameOver) {
-            io.to(gameSession).emit("on_game_update", message)
+        if (message.gameStatus.gameOver) {
+                io.to(gameSession).emit("on_game_update", message)
         } else {
             socket.to(gameSession).emit("on_game_update", message)
         }

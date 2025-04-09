@@ -25,6 +25,7 @@ import GameOverScreen from "../components/Game/GameOverScreen";
   -add loading spinner
   -make sure game session is terminated if user leaves the page via a navbar button
   -add check to see if the user is logged in before allowing them to play the game
+  -Fix bug where the game keeps going if the user clicks the quit button mid sequence
  */
 
 

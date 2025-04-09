@@ -42,3 +42,21 @@ export const QUERY_ME = gql`
     }
   }
 `;
+
+export const QUERY_MULTIPLAYER_SESSION = gql`
+  query getMultiplayerSession($multiplayerSessionId: ID!) {
+    multiplayerSession(multiplayerSessionId: $multiplayerSessionId) {
+      _id
+      sessionId
+    }
+  }
+`;
+
+export const QUERY_MULTIPLAYER_SESSIONS = gql`
+  query getMultiplayerSessions {
+    multiplayerSessions {
+      _id
+      sessionId
+    }
+  }
+`;

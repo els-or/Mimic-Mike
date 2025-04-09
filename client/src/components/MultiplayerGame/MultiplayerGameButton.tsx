@@ -1,15 +1,15 @@
 import { useContext, useEffect, useState } from "react";
 import gameContext from "../../utils/gameContext";
 
-import redAudioFile from "../../assets/red.mp3";
-import greenAudioFile from "../../assets/green.mp3";
-import blueAudioFile from "../../assets/blue.mp3";
-import yellowAudioFile from "../../assets/yellow.mp3";
+const redAudio = new Audio("/sounds/red.mp3");
+const greenAudio = new Audio("/sounds/green.mp3");
+const blueAudio = new Audio("/sounds/blue.mp3");
+const yellowAudio = new Audio("/sounds/yellow.mp3");
 
-const redAudio = new Audio(redAudioFile);
-const greenAudio = new Audio(greenAudioFile);
-const blueAudio = new Audio(blueAudioFile);
-const yellowAudio = new Audio(yellowAudioFile);
+redAudio.volume = 0.3;
+greenAudio.volume = 0.3;
+blueAudio.volume = 0.3;
+yellowAudio.volume = 0.3;
 
 interface IMultiplayerGameButtonProps {
   color: string;

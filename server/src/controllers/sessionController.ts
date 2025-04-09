@@ -2,6 +2,8 @@ import { ConnectedSocket, OnMessage, SocketController, SocketIO, MessageBody } f
 import { Server, Socket } from "socket.io";
 import { generatePattern } from "./gameController.js";
 
+import { MultiplayerSession } from "../models/index.js";
+
 @SocketController()
 export class SessionController {
     @OnMessage("join_game")
@@ -26,6 +28,11 @@ export class SessionController {
                 socket.emit("start_game", { options: { start: false, player: 2, startingPattern: startingPattern } })
                 // Emit to the second player    
                 socket.to(message.sessionId).emit("start_game", { options: { start: true, player: 1, startingPattern: startingPattern } })
+                const result = await MultiplayerSession.deleteMany({ sessionId: message.sessionId })
+                console.log("Deleted session: ", result)
+            } else {
+                MultiplayerSession.create(
+                    { sessionId: message.sessionId },)
             }
         }
     }

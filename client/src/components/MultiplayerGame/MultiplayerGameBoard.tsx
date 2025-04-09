@@ -5,9 +5,8 @@ import gameContext from "../../utils/gameContext";
 import socketService from "../../services/socketService";
 import gameService from "../../services/gameService";
 
-import wrongAudioFile from "../../assets/wrong.mp3";
-
-const wrongAudio = new Audio(wrongAudioFile);
+const wrongAudio = new Audio("/sounds/wrong.mp3");
+wrongAudio.volume = 0.3;
 
 interface ILightingList {
   green: boolean;
@@ -123,14 +122,22 @@ export function MultiplayerGameBoard() {
     if (numOfFailures >= 4) {
       setRoundState("gameOver");
     } else {
+      setCurrentInput([]);
+      setCurrentTurn(1);
+      setPlayerTurn(false);
+      setCurrentRound(currentRound + 1);
+      setRoundState("startingTurn");
+      handleTurnStart();
       if (socketService.socket) {
         gameService.updateGame(socketService.socket, {
           roundEnd: true,
           round: currentRound + 1,
+          player: playerNumber,
         });
       }
     }
   };
+
   const handleGameUpdate = () => {
     if (socketService.socket) {
       gameService.onGameUpdate(socketService.socket, (gameInfo) => {
@@ -146,16 +153,15 @@ export function MultiplayerGameBoard() {
           console.log("round end message received");
           setCurrentInput([]);
           setCurrentTurn(1);
-          if (playerNumber === 1) {
-            setPlayerTurn(true);
-          } else {
-            setPlayerTurn(false);
-          }
-          setCurrentRound(currentRound + 1);
+          setPlayerTurn(true);
+          setCurrentRound(gameInfo.round);
           setRoundState("startingTurn");
           console.log("gameInfo", gameInfo);
-          setCurrentPattern(gameInfo.newPattern);
           handleTurnStart();
+        }
+        if (gameInfo.newPattern) {
+          console.log("new pattern message received");
+          setCurrentPattern(gameInfo.newPattern);
         }
         if (gameInfo.playerSwap && !gameOver) {
           console.log("player swap message received");

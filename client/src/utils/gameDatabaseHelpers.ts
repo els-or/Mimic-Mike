@@ -77,17 +77,19 @@ export async function getUser(client: ApolloClient<any>): Promise<UserData | nul
 
 export async function deleteGameSession(client: ApolloClient<any>, gameSessionId: string): Promise<GameSession | null> {
     try {
-        const { data } = await client.mutate({
-            mutation: DELETE_GAME_SESSION,
-            variables: { _id: gameSessionId },
-        });
-
-        return data.deleteGameSession as GameSession; // Return the deleted game session
-
+      const { data } = await client.mutate({
+        mutation: DELETE_GAME_SESSION,
+        variables: { _id: gameSessionId },
+      });
+  
+      console.log("Deleted game session:", data?.deleteGameSession); // 👈 log the returned session
+  
+      return data.deleteGameSession as GameSession;
+  
     } catch (error) {
-        console.error("Failed to delete game session:", error);
-        return null; // Return null or handle error as needed
+      console.error("Failed to delete game session:", error);
+      return null;
     }
-}
+  }
 
 

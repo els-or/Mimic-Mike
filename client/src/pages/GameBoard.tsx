@@ -4,9 +4,10 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 //Utility files
-import { createGameSession, updateUserScore } from "../utils/gameDatabaseHelpers";
+import { createGameSession, updateUserScore, getUser } from "../utils/gameDatabaseHelpers";
 import { boardOneButtons } from "../utils/buttonArray";
 import { getRandomInt, playSound } from "../utils/gameLogicHelpers";
+
 
 //Interfaces
 import { GameSession } from "../interfaces/GameSession";
@@ -21,6 +22,7 @@ import GameOverScreen from "../components/Game/GameOverScreen";
   - update the round number before the sequence plays so the user can see what round they are on.
   -add loading spinner
   -make sure game session is terminated if user leaves the page via a navbar button
+  -add check to see if the user is logged in before allowing them to play the game
  */
 
 
@@ -35,6 +37,9 @@ const GameBoard = () => {
 
   //State to store the game's score (**NOTE: this is not the same as the score that is a part of createGameSession**)
   const [score, setScore] = useState(0); 
+
+  //State to hold the users current high score for display upon game over
+  const [highScoreMessage, setHighScoreMessage] = useState('');
 
   //State to track if the game has started.
   const [gameStarted, setGameStarted] = useState(false);
@@ -65,8 +70,7 @@ const GameBoard = () => {
 //#region Create Game Session
 
   const client = useApolloClient();
-  const userId = gameSession?.player._id;
-
+ 
   useEffect(() => {
     console.log("---------------------------");
     console.log("CLIENT USE EFFECT TRIGGERED");
@@ -139,50 +143,83 @@ const GameBoard = () => {
 //#endregion Game Start/Reset Functions
 
 //#region Game Over Functions
+//this updates the user score as well by calling a function that uses the UPDATE_USER mutation
+const getHighScore= async(): Promise<boolean | null > => {
+  
+  let newHighScore = false;
+
+  if(!gameSession){
+      throw new Error ("Unable to find user");
+  }
+  try{
+      //this calls a helper method that uses the GET_ME query
+      const currentUser = await getUser(client);
+
+      if(!currentUser){
+          throw new Error("Unable to find user");
+      }
+
+    const oldHighScore = currentUser.highScore;
+
+    //Update the user with the current score from the game session (if it exceeds the user's high score)
+    //Pass the entire game session
+    const updatedUser = await updateUserScore(client, gameSession, score); 
+    console.log("UPDATED USER = ", updatedUser)
+
+    if (updatedUser) {
+      console.log("oldHighScore ========== ", oldHighScore);
+      console.log("updatedUser.highScore ====== ", updatedUser.highScore);
+
+      // If the user's high score has increased, display a new high score message
+      if (updatedUser.highScore > oldHighScore) {
+          newHighScore = true;
+      } 
+      else{
+          newHighScore = false;
+      }
+    }
+
+  return newHighScore;
+
+  }catch(error){
+    console.error('Error handling game over:', error);
+    return null;
+  }
+}
+
+  //!!!! IMPORTANT NOTE: handleGameOver is called when the user fails a check inside the handlePlayerInput function
+  const handleGameOver = async() => {
+    setGameOver(true);
+    const newHighScore = await getHighScore(); // Await the result from getHighScore
+
+    // console.log("NEW HIGH SCORE = ", newHighScore);
+    // if (!newHighScore) {
+    //   console.error("Could not determine player's high score");
+    //   return;
+    // }
+  
+    // Update the high score message if there is a new high score
+    if (newHighScore) {
+      setHighScoreMessage("New High Score!"); // Update with the message
+    } 
+    else{
+      setHighScoreMessage("Good Try!"); // Alternatively, a default message if no new high score
+    }
+  };
+      
+
   const handlePlayAgain = async() => {
-    console.log("playing again")
-    //make sure user ID is present. It should be impossible for it to not be, but just in case (and to appease TypeScript, I'll double check it)
-    if(!userId){
-      console.error("User in not logged in. Cannot update score.");
-      navigate("/login");
-      return; //TODO: check this. I don't think this would be reachable
-    }
-
-    if(!gameSession){
-      console.error("No game session found");
-      return;
-    }
-
-      //Update the user with the current score from the game session (if it exceeds the user's high score)
-      //Pass the entire game session
-      await updateUserScore(client, gameSession); 
-
-      //TODO: call a mutator to end the current game session
+      console.log("playing again");
+     //TODO: call a mutator to end the current game session
 
       //Create a new game session
       const session = await createGameSession(client);
       setGameSession(session); // Store the new session
-  };
+  }
+
 
   const handleQuitGame = async() => {
     console.log("game over, returning to home page");
-
-    //make sure user ID is present. It should be impossible for it to not be, but just in case (and to appease TypeScript, I'll double check it)
-    if(!userId){
-      console.error("User in not logged in. Cannot update score.");
-      navigate("/login");
-      return; //TODO: check this. I don't think this would be reachable
-    }
-
-    if(!gameSession){
-      console.error("No game session found");
-      return;
-    }
-
-      //Update the user with the current score from the game session (if it exceeds the user's high score)
-      //Pass the entire game session
-      await updateUserScore(client, gameSession); 
-
       //TODO: call a mutator to end the current game session
       navigate("/");  
   }
@@ -278,7 +315,7 @@ const GameBoard = () => {
       console.log("INCORRECT");
       setInputLocked(true);
       setTimeout(() => {
-        setGameOver(true);
+        handleGameOver();
       }, 2000); //update this to reflect the sound playback length
       return;
     }
@@ -300,7 +337,7 @@ const GameBoard = () => {
 
   return (
     <div>
-      {gameOver && <GameOverScreen score={score} onPlayAgain={handlePlayAgain} onQuit={handleQuitGame} />}
+      {gameOver && <GameOverScreen score={score} highScoreMessage={highScoreMessage} onPlayAgain={handlePlayAgain} onQuit={handleQuitGame} />}
 
       {isLoading ? (
         // TODO: replace with something nicer looking.

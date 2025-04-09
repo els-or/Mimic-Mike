@@ -46,3 +46,11 @@ export const CREATE_GAME_SESSION = gql`
   }
 `;
 
+
+export const DELETE_GAME_SESSION = gql`
+  mutation deleteGameSession($_id: ID!) {
+    deleteGameSession(_id: $_id) {
+      _id
+    }
+  }
+`;

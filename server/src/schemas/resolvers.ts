@@ -94,9 +94,9 @@ const resolvers = {
     updateUser: async (_parent: any, { input }: { input: GameSessionInput }, context: any) => {
       console.log("*******UPDATE USER TRIGGERED*********  ", context);
       if(context.user) {
-          console.log('Updating user with game session:', input);
-          console.log('Game session ID:', input._id);
-          console.log('Game session player ID:', input.player._id);
+          // console.log('Updating user with game session:', input);
+          // console.log('Game session ID:', input._id);
+          // console.log('Game session player ID:', input.player._id);
          
             const user = await User.findById(context.user._id).select('highScore');
         
@@ -167,6 +167,25 @@ const resolvers = {
       }
     },
 
+   deleteGameSession: async (_parent: any, { _id }: { _id: string }, context: any) => {
+      // Ensure the user is authenticated
+      if (!context.user) {
+        throw new AuthenticationError('You need to be logged in to delete a game session!');
+      }
+
+      // Find the game session by ID and delete it
+      const deletedSession = await GameSession.findByIdAndDelete(_id);
+
+      
+      // If the session is not found, throw an error
+      if (!deletedSession) {
+        throw new Error('Game session not found');
+      }
+
+      // Return the deleted session
+      return deletedSession;
+
+    },
   },
 };
 

@@ -9,7 +9,7 @@ export const getRandomInt = (min: number, max: number): number => {
 
 export const playSound = async (sound: string) => {
     const audio = new Audio(sound);
-    audio.volume = 0.7; // Set volume to 70%
+    audio.volume = 0.3; // Set volume to 30%
     audio.play().catch(err => {
         console.error("Audio play error:", err);
       });

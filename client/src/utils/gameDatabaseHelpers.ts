@@ -1,5 +1,5 @@
 import { ApolloClient } from "@apollo/client";
-import { CREATE_GAME_SESSION, UPDATE_USER } from "../utils/mutations";
+import { CREATE_GAME_SESSION, UPDATE_USER, DELETE_GAME_SESSION } from "../utils/mutations";
 import { QUERY_ME } from "./queries";
 import { GameSession } from "../interfaces/GameSession";
 import { UserData } from "../interfaces/UserData";
@@ -72,6 +72,21 @@ export async function getUser(client: ApolloClient<any>): Promise<UserData | nul
     } catch (error) {
         console.error('Error fetching current user data:', error);
         return null;
+    }
+}
+
+export async function deleteGameSession(client: ApolloClient<any>, gameSessionId: string): Promise<GameSession | null> {
+    try {
+        const { data } = await client.mutate({
+            mutation: DELETE_GAME_SESSION,
+            variables: { _id: gameSessionId },
+        });
+
+        return data.deleteGameSession as GameSession; // Return the deleted game session
+
+    } catch (error) {
+        console.error("Failed to delete game session:", error);
+        return null; // Return null or handle error as needed
     }
 }
 

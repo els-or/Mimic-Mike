@@ -7,7 +7,7 @@ interface ExtendedJwt extends JwtPayload {
     email:string,
     id:string
   }
-};
+}
 
 class AuthService {
   // This method decodes the JWT token to get the user's profile information.

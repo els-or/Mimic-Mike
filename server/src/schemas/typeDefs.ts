@@ -7,6 +7,11 @@ const typeDefs = `
     highScore: Int!
   }
 
+  type MultiplayerSession {
+    _id: ID
+    sessionId: String
+  }
+
   type GameSession {
     _id: ID
     player: User
@@ -21,6 +26,11 @@ const typeDefs = `
     _id: ID!
     player: PlayerInput!
     score: Int!
+  }
+
+  input MultiplayerSessionInput {
+    _id: ID!
+    sessionId: String!
   }
   
   input UserInput {
@@ -38,6 +48,8 @@ const typeDefs = `
     users: [User]
     me: User
     gameSession(_id: ID!): GameSession
+    multiplayerSession(_id: ID!): MultiplayerSession
+    multiplayerSessions: [MultiplayerSession]
   }
 
   type Mutation {
@@ -46,6 +58,8 @@ const typeDefs = `
     updateUser(_id: ID!, input: GameSessionInput!): User
     createGameSession(score: Int!): GameSession
     deleteGameSession(_id: ID!): GameSession
+    createMultiplayerSession(sessionId: String!): MultiplayerSession
+    deleteMultiplayerSession(_id: ID!): MultiplayerSession
   }
 `;
 

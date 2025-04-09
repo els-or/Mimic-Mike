@@ -1,5 +1,5 @@
 //import e from 'express';
-import { GameSession, User } from '../models/index.js';
+import { GameSession, User, MultiplayerSession } from '../models/index.js';
 import { signToken, AuthenticationError } from '../utils/auth.js'; 
 
 // Define types for the arguments
@@ -35,6 +35,11 @@ interface GameSessionInput {
   score: number;
 }
 
+interface MultiplayerSessionInput {
+  _id: string;
+  sessionId: string;
+}
+
 const resolvers = {
   Query: {
     users: async () => {
@@ -42,6 +47,12 @@ const resolvers = {
     },
     gameSession: async (_parent: any, { _id }: GameSessionArgs) => {
       return GameSession.findById(_id).populate('player');
+    },
+    multiplayerSession: async (_parent: any, { _id }: MultiplayerSessionInput) => {
+      return MultiplayerSession.findById(_id);
+    },
+    multiplayerSessions: async () => {
+      return MultiplayerSession.find();
     },
     // Query to get the authenticated user's information
     // The 'me' query relies on the context to check if the user is authenticated
@@ -140,7 +151,33 @@ const resolvers = {
       }
       
     },
+    createMultiplayerSession: async (_parent: any, { sessionId }: { sessionId: string }, context: any) => {
+      // Ensure the user is authenticated
+      if (!context.user) {
+        throw new AuthenticationError('You need to be logged in to create a multiplayer session!');
+      }
+      // Create a new multiplayer session with the provided session ID
+      const newSession = await MultiplayerSession.create({
+        sessionId,
+      });
+      // Return the new session
+      return newSession;
+    },
 
+    deleteMultiplayerSession: async (_parent: any, { _id }: { _id: string }, context: any) => {
+      // Ensure the user is authenticated
+      if (!context.user) {
+        throw new AuthenticationError('You need to be logged in to delete a multiplayer session!');
+      }
+      // Find the multiplayer session by ID and delete it
+      const deletedSession = await MultiplayerSession.findByIdAndDelete(_id);
+      // If the session is not found, throw an error
+      if (!deletedSession) {
+        throw new Error('Multiplayer session not found');
+      }
+      // Return the deleted session
+      return deletedSession;
+    },
 
     createGameSession: async (_parent: any, { score }: { score: number }, context: any) => {
       //Ensusure the user is authenticated

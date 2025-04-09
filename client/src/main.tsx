@@ -45,7 +45,7 @@ const router = createBrowserRouter([
         element: <GameBoard />,
       },
       {
-        path: "/MultiPlayer",
+        path: "/Multiplayer",
         element: <MultiplayerGame />,
       },
     ],

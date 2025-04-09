@@ -7,6 +7,7 @@ import GameContext from "../utils/gameContext.js";
 import { MultiplayerGameBoard } from "../components/MultiplayerGame/MultiplayerGameBoard.js";
 import gameService from "../services/gameService.js";
 import { MIKE } from "../components/MultiplayerGame/MIKE.js";
+import { GameOver } from "../components/MultiplayerGame/GameOver.js";
 
 const MultiplayerGame = () => {
   const [isInSession, setInSession] = useState(false);
@@ -89,7 +90,7 @@ const MultiplayerGame = () => {
       <div>
         <h2>Play a game of M.I.K.E.</h2>
         <div>
-          {!isGameStarted && !isInSession ? (
+          {!isGameStarted && !isInSession && !gameOver ? (
             <p>Join a session to start a game!</p>
           ) : (
             ""
@@ -104,7 +105,7 @@ const MultiplayerGame = () => {
           ) : (
             ""
           )}
-          <p>{playerMessage}</p>
+          <p>{!gameOver ? playerMessage : null}</p>
         </div>
         <br />
         <br />
@@ -122,7 +123,7 @@ const MultiplayerGame = () => {
           ></div>
           {!isInSession ? <JoinSession /> : null}
           {isInSession && !gameOver ? <MultiplayerGameBoard /> : null}
-          {isInSession && gameOver ? "Game Over!" : null}
+          {isInSession && gameOver ? <GameOver /> : null}
           {isInSession && !gameOver ? <MIKE /> : null}
         </div>
       </div>

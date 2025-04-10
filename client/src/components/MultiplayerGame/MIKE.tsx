@@ -7,10 +7,12 @@ export function MIKE() {
   return (
     <div className="mike-display">
       <p>Don&apos;t spell M.I.K.E. or you&apos;ll lose!</p>
-      {numOfFailures > 0 ? <h4>M</h4> : null}
-      {numOfFailures > 1 ? <h4>I</h4> : null}
-      {numOfFailures > 2 ? <h4>K</h4> : null}
-      {numOfFailures > 3 ? <h4>E</h4> : null}
+      <h4>
+        {numOfFailures > 0 ? "M" : null}
+        {numOfFailures > 1 ? " I" : null}
+        {numOfFailures > 2 ? " K" : null}
+        {numOfFailures > 3 ? " E" : null}
+      </h4>
     </div>
   );
 }

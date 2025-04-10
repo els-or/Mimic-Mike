@@ -114,7 +114,9 @@ const MultiplayerGame = () => {
 
             {!isInSession ? <JoinSession /> : null}
             {isInSession && !gameOver ? <MultiplayerGameBoard /> : null}
-            {isInSession && gameOver ? <GameOver /> : null}
+            {isInSession && gameOver ? (
+              <GameOver victory={numOfFailures < 4} />
+            ) : null}
             {isInSession && !gameOver ? <MIKE /> : null}
           </div>
         </div>

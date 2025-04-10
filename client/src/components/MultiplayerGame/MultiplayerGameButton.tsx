@@ -32,6 +32,7 @@ export function MultiplayerGameButton(props: IMultiplayerGameButtonProps) {
     blue: "#4d79ff", // brighter blue
     yellow: "#ffb84d", // brighter orange
   };
+  console.log(_bgLit);
 
   const [_isClicked, setIsClicked] = useState(false);
   const handleClick = () => {

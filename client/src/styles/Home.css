@@ -110,19 +110,20 @@ body {
   margin-bottom: 0.5rem;
 }
 
+/* Game statistics */
 .high-score {
   background-color: #1a2a6c;
   color: white;
   padding: 1rem 1.8rem;
   border-radius: 10px;
-  min-width: 150px;
   margin: 0.5rem;
+  min-width: 150px;
 }
 
-/* Buttons with gradient hover effect */
-
+/* Interactive buttons */
 .login-button,
-.signup-button {
+.signup-button,
+.profile-button {
   display: block;
   width: 100%;
   max-width: 200px;
@@ -141,7 +142,8 @@ body {
 }
 
 .login-button::before,
-.signup-button::before {
+.signup-button::before,
+.profile-button::before {
   content: "";
   position: absolute;
   top: 0;
@@ -156,14 +158,16 @@ body {
 }
 
 .login-button:hover,
-.signup-button:hover {
+.signup-button:hover,
+.profile-button:hover {
   transform: scale(1.05);
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
   color: white;
 }
 
 .login-button:hover::before,
-.signup-button:hover::before {
+.signup-button:hover::before,
+.profile-button:hover::before {
   opacity: 1;
 }
 
@@ -324,48 +328,6 @@ body {
   color: #333;
   margin-bottom: 1rem;
   font-size: 1.1rem;
-}
-
-.profile-button {
-  display: block;
-  width: 100%;
-  max-width: 200px;
-  background-color: #1a2a6c;
-  color: white;
-  padding: 0.8rem 0;
-  margin: 0.7rem auto;
-  border-radius: 30px;
-  text-decoration: none;
-  font-weight: bold;
-  transition: all 0.3s ease;
-  text-align: center;
-  position: relative;
-  overflow: hidden;
-  z-index: 1;
-}
-
-.profile-button::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
-  z-index: -1;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  border-radius: 30px;
-}
-
-.profile-button:hover {
-  transform: scale(1.05);
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-  color: white;
-}
-
-.profile-button:hover::before {
-  opacity: 1;
 }
 
 /* Media queries */

@@ -8,6 +8,7 @@ import { MultiplayerGameBoard } from "../components/MultiplayerGame/MultiplayerG
 import gameService from "../services/gameService.js";
 import { MIKE } from "../components/MultiplayerGame/MIKE.js";
 import { GameOver } from "../components/MultiplayerGame/GameOver.js";
+import "../styles/Multiplayer.css";
 
 const MultiplayerGame = () => {
   const [isInSession, setInSession] = useState(false);
@@ -87,46 +88,37 @@ const MultiplayerGame = () => {
 
   return (
     <GameContext.Provider value={gameContextValue}>
-      <div>
-        <h2>Play a game of M.I.K.E.</h2>
-        <div>
-          {!isGameStarted && !isInSession && !gameOver ? (
-            <p>Join a session to start a game!</p>
-          ) : (
-            ""
-          )}
-          {isGameStarted && isInSession ? (
-            <p>You are player {playerNumber}</p>
-          ) : (
-            ""
-          )}
-          {!isGameStarted && isInSession ? (
-            <p>Waiting for another player to join the game...</p>
-          ) : (
-            ""
-          )}
-          <p>{!gameOver ? playerMessage : null}</p>
-        </div>
-        <br />
-        <br />
+      <>
+        <div className="mimic-mike-home"></div>
+        <div className="content-wrapper">
+          <div className="multiplayer-container">
+            <h2 className="multiplayer-title">Play a game of M.I.K.E.</h2>
 
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "row",
-          }}
-        >
-          <div
-            style={{
-              marginRight: 30,
-            }}
-          ></div>
-          {!isInSession ? <JoinSession /> : null}
-          {isInSession && !gameOver ? <MultiplayerGameBoard /> : null}
-          {isInSession && gameOver ? <GameOver /> : null}
-          {isInSession && !gameOver ? <MIKE /> : null}
+            <div className="multiplayer-info">
+              {!isGameStarted && !isInSession && !gameOver ? (
+                <p>Join a session to start a game!</p>
+              ) : null}
+
+              {isGameStarted && isInSession ? (
+                <p>You are player {playerNumber}</p>
+              ) : null}
+
+              {!isGameStarted && isInSession ? (
+                <p>Waiting for another player to join the game...</p>
+              ) : null}
+
+              {!gameOver ? (
+                <p className="player-message">{playerMessage}</p>
+              ) : null}
+            </div>
+
+            {!isInSession ? <JoinSession /> : null}
+            {isInSession && !gameOver ? <MultiplayerGameBoard /> : null}
+            {isInSession && gameOver ? <GameOver /> : null}
+            {isInSession && !gameOver ? <MIKE /> : null}
+          </div>
         </div>
-      </div>
+      </>
     </GameContext.Provider>
   );
 };

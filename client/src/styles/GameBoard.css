@@ -15,6 +15,7 @@
   text-align: center;
 }
 
+/* Game header and scoreboard */
 .game-header {
   width: 100%;
   margin-bottom: 2rem;
@@ -93,6 +94,7 @@
   text-shadow: 0px 0px 1px #000, 0px 0px 2px #000, 0px 0px 3px #000;
 }
 
+/* Button color styles */
 .simon-a {
   grid-area: a;
   background-color: #b71c1c;
@@ -163,6 +165,7 @@
   justify-content: center;
 }
 
+/* Secondary button with gradient hover */
 .secondary-button {
   background-color: #1a2a6c;
   color: white;

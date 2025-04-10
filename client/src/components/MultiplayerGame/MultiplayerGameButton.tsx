@@ -1,5 +1,6 @@
 import { useContext, useEffect, useState } from "react";
 import gameContext from "../../utils/gameContext";
+import "../../styles/Multiplayer.css";
 
 const redAudio = new Audio("/sounds/red.mp3");
 const greenAudio = new Audio("/sounds/green.mp3");
@@ -20,16 +21,16 @@ interface IMultiplayerGameButtonProps {
 export function MultiplayerGameButton(props: IMultiplayerGameButtonProps) {
   const { roundState } = useContext(gameContext);
   const bg = {
-    red: "#ff0000",
-    green: "#008000",
-    blue: "#0000ff",
-    yellow: "#ffff00",
+    red: "#b71c1c", // deep red
+    green: "#1b5e20", // deep green
+    blue: "#0d47a1", // deep blue
+    yellow: "#ff6f00", // orange amber
   };
   const bgLit = {
-    red: "#ff9999",
-    green: "#99ff99",
-    blue: "#9999ff",
-    yellow: "#ffff99",
+    red: "#ff4d4d", // brighter red
+    green: "#4dff4d", // brighter green
+    blue: "#4d79ff", // brighter blue
+    yellow: "#ffb84d", // brighter orange
   };
 
   const [_isClicked, setIsClicked] = useState(false);
@@ -42,6 +43,7 @@ export function MultiplayerGameButton(props: IMultiplayerGameButtonProps) {
       }, 500);
     }
   };
+
   // play sound if lit prop turns on
   useEffect(() => {
     if (props.lit) {
@@ -63,20 +65,23 @@ export function MultiplayerGameButton(props: IMultiplayerGameButtonProps) {
       }
     }
   }, [props.lit]);
+
   const color = props.color as keyof typeof bg;
+  const letterMap = {
+    red: "A",
+    green: "C",
+    blue: "B",
+    yellow: "D",
+  };
+
   return (
     <div
-      style={{
-        backgroundColor: props.lit ? bgLit[color] : bg[color],
-        height: 120,
-        width: 120,
-        margin: 10,
-        borderColor: props.lit ? bgLit[color] : bg[color],
-        borderStyle: "solid",
-        borderRadius: 30,
-        boxShadow: props.lit ? `0px 0px 5px ${bgLit[color]}` : undefined,
-      }}
+      className={`multiplayer-button multiplayer-${props.color} ${
+        props.lit ? "active" : ""
+      }`}
       onClick={handleClick}
-    ></div>
+    >
+      <div className="button-inner">{letterMap[color]}</div>
+    </div>
   );
 }

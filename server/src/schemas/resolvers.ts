@@ -185,6 +185,14 @@ const resolvers = {
         throw new AuthenticationError('You need to be logged in to create a game session!');
       }
 
+      const result= await GameSession.findOne({ player: context.user._id });
+      if (result) {
+        const deletedSession = await GameSession.findByIdAndDelete(result._id);
+        if (deletedSession) {
+          console.log('Deleted existing game session:', deletedSession._id);
+        }
+      }
+
       try{
         console.log('Creating game session for user:', context.user._id);
         console.log("user information:", context.user);
@@ -203,7 +211,7 @@ const resolvers = {
         throw new Error('Failed to create game session');
       }
     },
-
+    
    deleteGameSession: async (_parent: any, { _id }: { _id: string }, context: any) => {
       // Ensure the user is authenticated
       if (!context.user) {

@@ -88,9 +88,11 @@ This is a real-time, multiplayer version of the classic Simon Says game built wi
 - Chiense localization
 
 ## License
-&copy;2025 The Dream Team
+**&copy;2025 The Dream Team**
 
-This software uses an [MIT license](https://opensource.org/license/MIT).
+This software uses an [MIT license](https://opensource.org/license/MIT). 
+
+See `LICENSE` file for more details.
 
 ## Contributions and Contacts
 ### Lauren Moore

@@ -390,7 +390,10 @@ const getHighScore= async(): Promise<boolean | null > => {
               </div>
 
               <div className="game-controls">
-                  <button className="secondary-button" onClick={handleQuitGame}>
+                  <button className="secondary-button" onClick={handleQuitGame}
+                  style={{
+                      pointerEvents: inputLocked ? "none" : "auto",
+                    }}>
                     Quit Game
                   </button>
               </div>

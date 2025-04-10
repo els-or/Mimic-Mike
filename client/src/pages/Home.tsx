@@ -1,6 +1,6 @@
 import { useQuery } from "@apollo/client";
 import { QUERY_USERS } from "../utils/queries";
-import { useState, useEffect } from "react";
+import { useState, useEffect, use } from "react";
 import { Link } from "react-router-dom";
 import Auth from "../utils/auth";
 import "../styles/Home.css";
@@ -18,7 +18,7 @@ const Home = () => {
   console.log(highScore); 
 
   // Fetch all users for the leaderboard
-  const { data: userData, loading: leaderboardLoading } = useQuery(QUERY_USERS);
+  const { data: userData, loading: leaderboardLoading, refetch } = useQuery(QUERY_USERS);
 
   useEffect(() => {
     const savedHighScore = localStorage.getItem("mimic-mike-highscore");
@@ -30,6 +30,10 @@ const Home = () => {
   useEffect(() => {
     document.title = "Mimic Mike";
   }, []);
+
+  useEffect(() => {
+    refetch();
+  }, [refetch]);
 
   // Process leaderboard data when it arrives
   useEffect(() => {

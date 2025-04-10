@@ -103,37 +103,19 @@ const resolvers = {
     },
 
     updateUser: async (_parent: any, { input }: { input: GameSessionInput }, context: any) => {
-      console.log("*******UPDATE USER TRIGGERED*********  ", context);
-      if(context.user) {
-          // console.log('Updating user with game session:', input);
-          // console.log('Game session ID:', input._id);
-          // console.log('Game session player ID:', input.player._id);
-         
-            const user = await User.findById(context.user._id).select('highScore');
-        
-          // //if user not found, throw error
+      if(context.user) { 
+          const user = await User.findById(context.user._id).select('highScore');
+
           if (!user) {
             throw new Error('User not found');
           }
-          console.log('\nuser current highscore:', user.highScore);
-
-          console.log(' \n context user id:', context.user._id);
-          console.log('input player id:', input.player._id);
-     
           //check to see if the context user doesn't match the game session user
           if(context.user._id !== input.player._id) {
             throw new AuthenticationError('You are not authorized to update this user.');
           }
           else {
             //compare the score from the game session to the highscore of the user
-            console.log('Comparing scores...');
-            console.log('Game session score:', input.score);
-            console.log('User high score:', user.highScore);
-
-            if (input.score > user.highScore) {
-                console.log('New high score:', input.score);
-                console.log('Old high score:', user.highScore);
-                
+            if (input.score > user.highScore) {             
                 //if score is greater than highscore, update highscore
                 const updatedUser = await User.findByIdAndUpdate(
                   { _id: context.user._id },
@@ -194,18 +176,13 @@ const resolvers = {
       }
 
       try{
-        console.log('Creating game session for user:', context.user._id);
-        console.log("user information:", context.user);
-        console.log('Score:', score);
         //create a new game session with the logged in user as the player
         const newGameSession = await GameSession.create({
           player: context.user._id, //use the authenticated user's id
-          //TODO: figure out how to get the username from the context user
-          //player: context.user.username, //use the authenticated user's username
-          score, //??? Should this be score: score? Or is this correct?
+          score,
         });
 
-        return newGameSession; //return the new game session
+        return newGameSession;
       }catch (error) {
         console.error('Error creating game session:', error);
         throw new Error('Failed to create game session');

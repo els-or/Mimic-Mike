@@ -1,9 +1,9 @@
 import { useContext, useEffect, useState } from "react";
-
 import { MultiplayerGameButton } from "./MultiplayerGameButton";
 import gameContext from "../../utils/gameContext";
 import socketService from "../../services/socketService";
 import gameService from "../../services/gameService";
+import "../../styles/Multiplayer.css";
 
 const wrongAudio = new Audio("/sounds/wrong.mp3");
 wrongAudio.volume = 0.3;
@@ -38,7 +38,6 @@ export function MultiplayerGameBoard() {
   const { gameOver, setGameOver } = useContext(gameContext);
 
   const [timerIdList, setTimerIdList] = useState<NodeJS.Timeout[]>([]);
-
   const [lightingList, setLightingList] = useState(allLightsOff);
 
   const handleClick = (color: string) => {
@@ -285,41 +284,29 @@ export function MultiplayerGameBoard() {
 
   return (
     <div>
-      <div
-        style={{
-          background: "black",
-          padding: "auto",
-          width: 600,
-          height: 400,
-          display: "flex",
-          flexDirection: "row",
-          justifyContent: "center",
-          alignItems: "center",
-        }}
-      >
-        <div>
-          <MultiplayerGameButton
-            color="green"
-            lit={lightingList.green}
-            handleClick={handleClick}
-          />
-          <MultiplayerGameButton
-            color="red"
-            lit={lightingList.red}
-            handleClick={handleClick}
-          />
-        </div>
-        <div>
-          <MultiplayerGameButton
-            color="yellow"
-            lit={lightingList.yellow}
-            handleClick={handleClick}
-          />
-          <MultiplayerGameButton
-            color="blue"
-            lit={lightingList.blue}
-            handleClick={handleClick}
-          />
+      <div className="simon-container multiplayer-simon">
+        <MultiplayerGameButton
+          color="green"
+          lit={lightingList.green}
+          handleClick={handleClick}
+        />
+        <MultiplayerGameButton
+          color="red"
+          lit={lightingList.red}
+          handleClick={handleClick}
+        />
+        <MultiplayerGameButton
+          color="yellow"
+          lit={lightingList.yellow}
+          handleClick={handleClick}
+        />
+        <MultiplayerGameButton
+          color="blue"
+          lit={lightingList.blue}
+          handleClick={handleClick}
+        />
+        <div className="simon-center">
+          <div className="round-display">{currentRound}</div>
         </div>
       </div>
     </div>

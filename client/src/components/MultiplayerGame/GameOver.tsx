@@ -1,16 +1,19 @@
 import { Link } from "react-router-dom";
+import "../../styles/Multiplayer.css";
 
 export function GameOver() {
   return (
-    <div>
+    <div className="game-over-container">
       <h1>Game Over</h1>
       <p>Thanks for playing!</p>
-      <Link to="/">
-        <button>Return to Home</button>
-      </Link>
-      <Link reloadDocument to="/Multiplayer">
-        <button>Play Again</button>
-      </Link>
+      <div className="button-container">
+        <Link to="/" className="game-button">
+          Return to Home
+        </Link>
+        <Link reloadDocument to="/Multiplayer" className="game-button">
+          Play Again
+        </Link>
+      </div>
     </div>
   );
 }

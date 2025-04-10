@@ -15,6 +15,7 @@
   text-align: center;
 }
 
+/* Game header and scoreboard */
 .game-header {
   width: 100%;
   margin-bottom: 2rem;
@@ -36,16 +37,16 @@
 /* Simon style game board */
 .simon-container {
   position: relative;
-  width: 335px;
-  height: 335px;
+  width: 345px;
+  height: 345px;
   margin: 0 auto 2rem;
   border-radius: 40%;
   display: grid;
   grid-template-areas:
     "a b"
     "c d";
-  grid-gap: 10px;
-  padding: 10px;
+  grid-gap: 15px;
+  padding: 15px;
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
   background-color: #333;
   transform: rotate(45deg);
@@ -62,6 +63,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  margin: 0; /* Remove any margins */
 }
 
 .simon-button:hover {
@@ -93,10 +95,11 @@
   text-shadow: 0px 0px 1px #000, 0px 0px 2px #000, 0px 0px 3px #000;
 }
 
+/* Button color styles with refined corners */
 .simon-a {
   grid-area: a;
   background-color: #b71c1c;
-  border-top-left-radius: 100% 100%;
+  border-top-left-radius: 95% 95%;
 }
 
 .simon-a.active {
@@ -106,7 +109,7 @@
 .simon-b {
   grid-area: b;
   background-color: #0d47a1;
-  border-top-right-radius: 100% 100%;
+  border-top-right-radius: 95% 95%;
 }
 
 .simon-b.active {
@@ -116,7 +119,7 @@
 .simon-c {
   grid-area: c;
   background-color: #1b5e20;
-  border-bottom-left-radius: 100% 100%;
+  border-bottom-left-radius: 95% 95%;
 }
 
 .simon-c.active {
@@ -126,7 +129,7 @@
 .simon-d {
   grid-area: d;
   background-color: #ff6f00;
-  border-bottom-right-radius: 100% 100%;
+  border-bottom-right-radius: 95% 95%;
 }
 
 .simon-d.active {
@@ -163,6 +166,7 @@
   justify-content: center;
 }
 
+/* Secondary button with gradient hover */
 .secondary-button {
   background-color: #1a2a6c;
   color: white;
@@ -206,6 +210,8 @@
   .simon-container {
     width: 290px;
     height: 290px;
+    grid-gap: 12px;
+    padding: 12px;
   }
 
   .simon-button {
@@ -227,6 +233,8 @@
   .simon-container {
     width: 245px;
     height: 245px;
+    grid-gap: 10px;
+    padding: 10px;
   }
 
   .simon-button {

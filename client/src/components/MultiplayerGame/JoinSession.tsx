@@ -4,6 +4,7 @@ import socketService from "../../services/socketService.js";
 import gameService from "../../services/gameService.js";
 import { useQuery } from "@apollo/client";
 import { QUERY_MULTIPLAYER_SESSIONS } from "../../utils/queries.js";
+import "../../styles/Multiplayer.css";
 
 interface IJoinSessionProps {}
 
@@ -69,40 +70,42 @@ export function JoinSession(_props: IJoinSessionProps) {
   };
 
   return (
-    <div>
-      <form onSubmit={JoinSession}>
-        <div>
-          <h4>Enter Session Name to create a new game</h4>
+    <div className="session-forms">
+      <div className="session-form">
+        <h4>Enter Session Name to create a new game</h4>
+        <form onSubmit={JoinSession} className="form-group">
           <input
+            className="session-input"
             placeholder="Session Name"
             value={sessionName}
             onChange={handleSessionNameChange}
           />
-          <button type="submit" disabled={isJoining}>
+          <button
+            className="multiplayer-btn"
+            type="submit"
+            disabled={isJoining}
+          >
             {isJoining ? "Joining..." : "Join"}
           </button>
-        </div>
-      </form>
-      <div>
+        </form>
+      </div>
+
+      <div className="session-form">
         <h4>Join an Available Session</h4>
-        <button onClick={() => refetch()}>Refresh</button>
-        <ul>
+        <button className="multiplayer-btn" onClick={() => refetch()}>
+          Refresh
+        </button>
+        <div className="session-list">
           {sessionList.map((session, index) => (
-            <li
-              style={{
-                border: "1px solid black",
-                width: "90px",
-                margin: "5px",
-                padding: "5px",
-                listStyleType: "none",
-              }}
+            <div
+              className="session-item"
               onClick={() => handleJoin(session)}
               key={index}
             >
               {session}
-            </li>
+            </div>
           ))}
-        </ul>
+        </div>
       </div>
     </div>
   );

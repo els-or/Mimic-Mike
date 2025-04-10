@@ -389,14 +389,18 @@ const getHighScore= async(): Promise<boolean | null > => {
               onQuit={handleQuitGame}
             />
           )}
-          {isLoading && <div className="game-info"><p>Loading...</p></div>}
+
           {gameStarted ? (
             <div className="game-container">
               <div className="game-header">
                 <h1>Round {round}</h1>
                 <p className="game-score">Score: {score}</p>
               </div>
-
+              {isLoading && 
+                <div className="game-info">
+                    <p>Loading...</p>
+                </div>
+              }
               <div className="simon-container">
                 {boardOneButtons.map((button) => (
                   <div
@@ -439,6 +443,7 @@ const getHighScore= async(): Promise<boolean | null > => {
                 the correct order.
               </p>
               <p>How many rounds can you go?</p>
+              <p>Loading...</p>
             </div>
         </div>
         )}

@@ -43,6 +43,14 @@ const Footer: React.FC = () => {
           </button>
         )}
         <div className="footer-text">
+          <span className="Bug-Report">
+            <a 
+              href="https://docs.google.com/forms/d/e/1FAIpQLScuvhMuXwevMBjeGZla5ZUGRMGx1N7C6b33w8rs8pOa9KA-Vg/viewform?usp=dialog" 
+              target="_blank" 
+              rel="noopener noreferrer">
+                Find a bug? Report it here
+            </a>
+          </span>
           <span className="copyright">© {currentYear} Mimic Mike</span>
           <span className="divider">|</span>
           <span className="credit">Made by the Dream Team</span>

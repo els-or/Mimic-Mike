@@ -1,7 +1,7 @@
 
 //Libraries
 import { useApolloClient } from "@apollo/client";
-import { useEffect, useState } from "react";
+import { useRef, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 //Utility files
@@ -71,12 +71,16 @@ const GameBoard = () => {
   // Tracks which button is currently activated/highlighted
   const [activeButton, setActiveButton] = useState<string | null>(null);
 
+  const hasStartedRef = useRef(false); // track if playSequence already triggered
+
 //#endregion State Variables
 
 //#region Create Game Session
 
   const client = useApolloClient();
- 
+  
+  //INITIAL GAME SESSION CREATION
+  //This creates the game session when the component mounts
   useEffect(() => {
     //console.log("---------------------------");
     //console.log("CLIENT USE EFFECT TRIGGERED");
@@ -85,6 +89,7 @@ const GameBoard = () => {
     const generateSession = async () => {
       const session = await createGameSession(client);
       if(session){
+        //console.log("********LOADING = ", isLoading);
         //console.log('New game session:', session);
         //Store the session in state
         setGameSession(session);
@@ -99,10 +104,24 @@ const GameBoard = () => {
       //TODO: Improve this so it will stop if it fails to get the data too many times
       generateSession();
     }
-    
-    startOrResetGame();
-  },[client, gameSession]);
+    setTimeout(() => {
+      setIsLoading(false); // Mark loading as complete
+    }, 4000); // Simulate a delay for loading
+
+  },[]);
   
+
+
+  //SUBSEQUENT GAME SESSION CREATION
+  useEffect(() => {
+    if (gameSession) {
+      startOrResetGame();
+    }
+  }, [gameSession]);
+
+
+
+
 //#endregion Create Game Session
 
 //#region Game Start/Reset Functions
@@ -119,7 +138,8 @@ const GameBoard = () => {
         setRound(0);
     
         setInputLocked(false);
-    
+        hasStartedRef.current = false; // <-- Reset the ref here!
+
         // Simulate a short delay to ensure all states are reset before proceeding
         setTimeout(() => {
           setIsLoading(false); // Mark loading as complete
@@ -136,12 +156,20 @@ const GameBoard = () => {
   };
 
   // Initialize game when ready
+
+
   useEffect(() => {
-    if (!isLoading && gameStarted) {
+    if (!isLoading && gameStarted && !hasStartedRef.current) {
+      //console.log("---------------------");
+      //console.log("running game start useEffect");
+      //console.log("---------------------\n");
+      //console.log("isLoading = ", isLoading);
+  
+      hasStartedRef.current = true; // mark it so it doesn't run again
+  
       setTimeout(() => {
-          playSequence();
-      }, 2000); 
-      
+        playSequence();
+      }, 1000);
     }
   }, [isLoading, gameStarted]);
 
@@ -327,6 +355,7 @@ const getHighScore= async(): Promise<boolean | null > => {
       setInputLocked(true);
       setTimeout(() => {
         handleGameOver();
+        playSound("/sounds/wrong.mp3"); 
       }, 2000); //update this to reflect the sound playback length
 
       return;
@@ -336,9 +365,13 @@ const getHighScore= async(): Promise<boolean | null > => {
     if (updatedUserSequence.length === gameSequence.length) {
       setTimeout(() => {
         setScore((prev) => prev + 1);
+        playSound("/sounds/correct.mp3"); // Play correct sound
+      }, 800); // Delay for sound effect
+      
+      setTimeout(() => {
         setUserSequence([]);
         playSequence();
-      }, 1000);
+      }, 1700); // Delay for next sequence
     }
   };
 //#endregion Player Input
@@ -363,7 +396,11 @@ const getHighScore= async(): Promise<boolean | null > => {
                 <h1>Round {round}</h1>
                 <p className="game-score">Score: {score}</p>
               </div>
-
+              {isLoading && 
+                <div className="game-info">
+                    <p>Loading...</p>
+                </div>
+              }
               <div className="simon-container">
                 {boardOneButtons.map((button) => (
                   <div
@@ -385,7 +422,10 @@ const getHighScore= async(): Promise<boolean | null > => {
               </div>
 
               <div className="game-controls">
-                  <button className="secondary-button" onClick={handleQuitGame}>
+                  <button className="secondary-button" onClick={handleQuitGame}
+                  style={{
+                      pointerEvents: inputLocked ? "none" : "auto",
+                    }}>
                     Quit Game
                   </button>
               </div>
@@ -403,6 +443,7 @@ const getHighScore= async(): Promise<boolean | null > => {
                 the correct order.
               </p>
               <p>How many rounds can you go?</p>
+              <p>Loading...</p>
             </div>
         </div>
         )}

@@ -82,15 +82,15 @@ const GameBoard = () => {
   //INITIAL GAME SESSION CREATION
   //This creates the game session when the component mounts
   useEffect(() => {
-    console.log("---------------------------");
-    console.log("CLIENT USE EFFECT TRIGGERED");
-    console.log("---------------------------\n");
+    //console.log("---------------------------");
+    //console.log("CLIENT USE EFFECT TRIGGERED");
+    //console.log("---------------------------\n");
     //TODO: make sure generateSession is used
     const generateSession = async () => {
       const session = await createGameSession(client);
       if(session){
-        console.log("********LOADING = ", isLoading);
-        console.log('New game session:', session);
+        //console.log("********LOADING = ", isLoading);
+        //console.log('New game session:', session);
         //Store the session in state
         setGameSession(session);
       }else{
@@ -126,9 +126,9 @@ const GameBoard = () => {
 
 //#region Game Start/Reset Functions
   const startOrResetGame = () => {
-    console.log("---------------------");
-    console.log("running startOrResetGame");
-    console.log("---------------------\n");
+    //console.log("---------------------");
+    //console.log("running startOrResetGame");
+    //console.log("---------------------\n");
     try{
         setIsLoading(true);
         setGameOver(false);
@@ -160,10 +160,10 @@ const GameBoard = () => {
 
   useEffect(() => {
     if (!isLoading && gameStarted && !hasStartedRef.current) {
-      console.log("---------------------");
-      console.log("running game start useEffect");
-      console.log("---------------------\n");
-      console.log("isLoading = ", isLoading);
+      //console.log("---------------------");
+      //console.log("running game start useEffect");
+      //console.log("---------------------\n");
+      //console.log("isLoading = ", isLoading);
   
       hasStartedRef.current = true; // mark it so it doesn't run again
   
@@ -197,11 +197,11 @@ const getHighScore= async(): Promise<boolean | null > => {
     //Update the user with the current score from the game session (if it exceeds the user's high score)
     //Pass the entire game session
     const updatedUser = await updateUserScore(client, gameSession, score); 
-    console.log("UPDATED USER = ", updatedUser)
+    //console.log("UPDATED USER = ", updatedUser)
 
     if (updatedUser) {
-      console.log("oldHighScore ========== ", oldHighScore);
-      console.log("updatedUser.highScore ====== ", updatedUser.highScore);
+      //console.log("oldHighScore ========== ", oldHighScore);
+      //console.log("updatedUser.highScore ====== ", updatedUser.highScore);
 
       // If the user's high score has increased, display a new high score message
       if (updatedUser.highScore > oldHighScore) {
@@ -235,7 +235,7 @@ const getHighScore= async(): Promise<boolean | null > => {
   };
       
   const handlePlayAgain = async () => {
-    console.log("Playing again");
+    //console.log("Playing again");
   
     if (gameSession) {
       try {
@@ -265,7 +265,7 @@ const getHighScore= async(): Promise<boolean | null > => {
 
 
   const handleQuitGame = async () => {
-    console.log("Game over, returning to home page");
+    //console.log("Game over, returning to home page");
   
     if (gameSession) {
       try {

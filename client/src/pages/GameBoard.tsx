@@ -327,6 +327,7 @@ const getHighScore= async(): Promise<boolean | null > => {
       setInputLocked(true);
       setTimeout(() => {
         handleGameOver();
+        playSound("/sounds/wrong.mp3"); 
       }, 2000); //update this to reflect the sound playback length
 
       return;
@@ -336,9 +337,13 @@ const getHighScore= async(): Promise<boolean | null > => {
     if (updatedUserSequence.length === gameSequence.length) {
       setTimeout(() => {
         setScore((prev) => prev + 1);
+        playSound("/sounds/correct.mp3"); // Play correct sound
+      }, 800); // Delay for sound effect
+      
+      setTimeout(() => {
         setUserSequence([]);
         playSequence();
-      }, 1000);
+      }, 1700); // Delay for next sequence
     }
   };
 //#endregion Player Input

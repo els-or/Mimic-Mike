@@ -269,16 +269,16 @@
 /* Simon style game board for multiplayer */
 .simon-container.multiplayer-simon {
   position: relative;
-  width: 335px;
-  height: 335px;
+  width: 345px;
+  height: 345px;
   margin: 2rem auto;
   border-radius: 40%;
   display: grid;
   grid-template-areas:
     "green red"
     "yellow blue";
-  grid-gap: 10px;
-  padding: 10px;
+  grid-gap: 15px;
+  padding: 15px;
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
   background-color: #333;
   transform: rotate(45deg);
@@ -295,6 +295,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  margin: 0;
 }
 
 .multiplayer-button:hover {
@@ -320,45 +321,48 @@
   user-select: none;
 }
 
-/* Button color styles */
 .multiplayer-green {
   grid-area: green;
   background-color: #1b5e20;
-  border-top-left-radius: 100% 100%;
+  border-top-left-radius: 95% 95%;
+  transform-origin: bottom right;
 }
 
 .multiplayer-green.active {
-  background-color: #4dff4d; /* Brighter green */
+  background-color: #4dff4d;
 }
 
 .multiplayer-red {
   grid-area: red;
   background-color: #b71c1c;
-  border-top-right-radius: 100% 100%;
+  border-top-right-radius: 95% 95%;
+  transform-origin: bottom left;
 }
 
 .multiplayer-red.active {
-  background-color: #ff4d4d; /* Brighter red */
+  background-color: #ff4d4d;
 }
 
 .multiplayer-yellow {
   grid-area: yellow;
   background-color: #ff6f00;
-  border-bottom-left-radius: 100% 100%;
+  border-bottom-left-radius: 95% 95%;
+  transform-origin: top right;
 }
 
 .multiplayer-yellow.active {
-  background-color: #ffb84d; /* Brighter orange/yellow */
+  background-color: #ffb84d;
 }
 
 .multiplayer-blue {
   grid-area: blue;
   background-color: #0d47a1;
-  border-bottom-right-radius: 100% 100%;
+  border-bottom-right-radius: 95% 95%;
+  transform-origin: top left;
 }
 
 .multiplayer-blue.active {
-  background-color: #4d79ff; /* Brighter blue */
+  background-color: #4d79ff;
 }
 
 .multiplayer-simon .simon-center {
@@ -400,6 +404,8 @@
   .simon-container.multiplayer-simon {
     width: 290px;
     height: 290px;
+    grid-gap: 12px; /* Slightly smaller gap for smaller screens */
+    padding: 12px;
   }
 
   .multiplayer-button {
@@ -434,6 +440,8 @@
   .simon-container.multiplayer-simon {
     width: 245px;
     height: 245px;
+    grid-gap: 10px; /* Even smaller gap for mobile screens */
+    padding: 10px;
   }
 
   .multiplayer-button {

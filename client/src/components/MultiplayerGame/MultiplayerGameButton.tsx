@@ -26,7 +26,7 @@ export function MultiplayerGameButton(props: IMultiplayerGameButtonProps) {
     blue: "#0d47a1", // deep blue
     yellow: "#ff6f00", // orange amber
   };
-  const bgLit = {
+  const _bgLit = {
     red: "#ff4d4d", // brighter red
     green: "#4dff4d", // brighter green
     blue: "#4d79ff", // brighter blue
